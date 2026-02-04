@@ -1,0 +1,1876 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+    
+    <!-- PWA для iOS -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Расписание">
+    
+    <!-- Цвет темы -->
+    <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
+    <meta name="theme-color" content="#f2f2f7" media="(prefers-color-scheme: light)">
+    
+    <title>Расписание</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        :root {
+            --bg: #f2f2f7;
+            --card-bg: #fff;
+            --text-primary: #1c1c1e;
+            --text-secondary: #8e8e93;
+            --border: #e5e5ea;
+            --inactive-bg: #f5f5f7;
+            --accent: #007aff;
+            --current-lesson: rgba(52, 199, 89, 0.15);
+            --current-border: #34c759;
+            --hw-border: #ff9500;
+            --hw-bg: rgba(255, 149, 0, 0.08);
+            --danger: #ff3b30;
+            --success: #34c759;
+            --numerator: #5856d6;
+            --numerator-bg: rgba(88, 86, 214, 0.12);
+            --denominator: #af52de;
+            --denominator-bg: rgba(175, 82, 222, 0.12);
+        }
+        
+        .dark-theme {
+            --bg: #000000;
+            --card-bg: #1c1c1e;
+            --text-primary: #ffffff;
+            --text-secondary: #8e8e93;
+            --border: #38383a;
+            --inactive-bg: #2c2c2e;
+            --accent: #0a84ff;
+            --current-lesson: rgba(48, 209, 88, 0.2);
+            --current-border: #30d158;
+            --hw-border: #ff9f0a;
+            --hw-bg: rgba(255, 159, 10, 0.15);
+            --numerator: #7d7aff;
+            --numerator-bg: rgba(125, 122, 255, 0.2);
+            --denominator: #da8fff;
+            --denominator-bg: rgba(218, 143, 255, 0.2);
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg);
+            min-height: 100vh;
+            color: var(--text-primary);
+            padding-top: calc(env(safe-area-inset-top) + 16px);
+            padding-bottom: calc(env(safe-area-inset-bottom) + 16px);
+            padding-left: calc(env(safe-area-inset-left) + 16px);
+            padding-right: calc(env(safe-area-inset-right) + 16px);
+            transition: background 0.3s, color 0.3s;
+        }
+        
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+        }
+        
+        /* Shake animation */
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-6px); }
+            20%, 40%, 60%, 80% { transform: translateX(6px); }
+        }
+        
+        .shake {
+            animation: shake 0.5s ease-in-out;
+        }
+        
+        .top-bar {
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+            gap: 8px;
+        }
+        
+        .full-schedule .top-bar {
+            display: flex;
+        }
+        
+        .today-view .theme-toggle-standalone {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 12px;
+        }
+        
+        .full-schedule .theme-toggle-standalone {
+            display: none;
+        }
+        
+        .back-btn, .archive-btn {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--card-bg);
+            border: none;
+            color: var(--accent);
+            padding: 10px 16px;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+            transition: background 0.3s;
+        }
+        
+        .archive-btn {
+            color: var(--hw-border);
+        }
+        
+        .back-btn:active, .archive-btn:active {
+            opacity: 0.7;
+        }
+        
+        .top-bar-right {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .theme-toggle {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .toggle-switch {
+            position: relative;
+            width: 51px;
+            height: 31px;
+            background: #e9e9eb;
+            border-radius: 16px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .dark-theme .toggle-switch {
+            background: #39393d;
+        }
+        
+        .toggle-switch.active {
+            background: #34c759;
+        }
+        
+        .toggle-knob {
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 27px;
+            height: 27px;
+            background: #fff;
+            border-radius: 50%;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            transition: transform 0.3s;
+        }
+        
+        .toggle-switch.active .toggle-knob {
+            transform: translateX(20px);
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .day-title {
+            font-size: 32px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            color: var(--text-primary);
+        }
+        
+        .date-info {
+            font-size: 15px;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+        
+        .week-type {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--card-bg);
+            padding: 8px 16px;
+            border-radius: 20px;
+            margin-top: 12px;
+            font-size: 13px;
+            font-weight: 600;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+            transition: background 0.3s;
+        }
+        
+        .week-type.numerator-week {
+            background: var(--numerator-bg);
+            color: var(--numerator);
+        }
+        
+        .week-type.denominator-week {
+            background: var(--denominator-bg);
+            color: var(--denominator);
+        }
+        
+        .week-type-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+        
+        .week-type-dot.numerator { background: var(--numerator); }
+        .week-type-dot.denominator { background: var(--denominator); }
+        
+        .week-number {
+            opacity: 0.8;
+            font-weight: 400;
+            margin-left: 4px;
+        }
+        
+        .schedule-card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 4px 0;
+            margin-bottom: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+            cursor: pointer;
+            transition: transform 0.2s, background 0.3s;
+            overflow: hidden;
+        }
+        
+        .schedule-card:active {
+            transform: scale(0.98);
+        }
+        
+        .schedule-card.no-click {
+            cursor: default;
+        }
+        
+        .schedule-card.no-click:active {
+            transform: none;
+        }
+        
+        .lesson {
+            padding: 14px 16px;
+            border-bottom: 0.5px solid var(--border);
+            transition: background 0.2s, opacity 0.2s;
+        }
+        
+        .lesson:last-child {
+            border-bottom: none;
+        }
+        
+        .lesson.inactive {
+            background: var(--inactive-bg);
+            opacity: 0.5;
+        }
+        
+        .lesson.current {
+            background: var(--current-lesson);
+            border-left: 3px solid var(--current-border);
+            padding-left: 13px;
+        }
+        
+        .lesson-time {
+            font-size: 13px;
+            color: var(--accent);
+            font-weight: 600;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .current-badge {
+            font-size: 10px;
+            background: var(--current-border);
+            color: white;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+        
+        .lesson-main {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 12px;
+        }
+        
+        .lesson-info {
+            flex: 1;
+        }
+        
+        .lesson-name {
+            font-size: 17px;
+            font-weight: 600;
+            color: var(--text-primary);
+            line-height: 1.3;
+        }
+        
+        .lesson-week-badge {
+            display: inline-block;
+            font-size: 10px;
+            padding: 3px 8px;
+            border-radius: 5px;
+            font-weight: 700;
+            text-transform: uppercase;
+            margin-left: 8px;
+            vertical-align: middle;
+        }
+        
+        .badge-num {
+            background: var(--numerator-bg);
+            color: var(--numerator);
+        }
+        
+        .badge-den {
+            background: var(--denominator-bg);
+            color: var(--denominator);
+        }
+        
+        .lesson-teacher {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+        
+        .lesson-room {
+            font-size: 15px;
+            color: var(--accent);
+            font-weight: 600;
+            background: rgba(0, 122, 255, 0.1);
+            padding: 8px 14px;
+            border-radius: 10px;
+            flex-shrink: 0;
+        }
+        
+        .dark-theme .lesson-room {
+            background: rgba(10, 132, 255, 0.2);
+        }
+        
+        /* Блок ДЗ под предметом */
+        .lesson-homework {
+            margin-top: 10px;
+            padding: 10px 12px;
+            background: var(--hw-bg);
+            border: 1.5px dashed var(--hw-border);
+            border-radius: 10px;
+            font-size: 14px;
+            color: var(--text-primary);
+        }
+        
+        .lesson-homework.completed {
+            opacity: 0.6;
+        }
+        
+        .lesson-homework.completed .hw-text {
+            text-decoration: line-through;
+        }
+        
+        .hw-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 6px;
+        }
+        
+        .hw-label {
+            font-size: 11px;
+            color: var(--hw-border);
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+        
+        .hw-deadline {
+            font-size: 12px;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+        
+        .hw-deadline.urgent {
+            color: var(--danger);
+            font-weight: 600;
+        }
+        
+        .hw-content {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+        }
+        
+        .hw-checkbox {
+            width: 22px;
+            height: 22px;
+            border: 2px solid var(--hw-border);
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            transition: all 0.2s;
+        }
+        
+        .hw-checkbox.checked {
+            background: var(--success);
+            border-color: var(--success);
+        }
+        
+        .hw-checkbox.checked::after {
+            content: '✓';
+            color: white;
+            font-size: 13px;
+            font-weight: bold;
+        }
+        
+        .hw-text {
+            flex: 1;
+            line-height: 1.4;
+        }
+        
+        .hw-delete {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: var(--danger);
+            color: white;
+            border: none;
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            opacity: 0.8;
+        }
+        
+        .hw-delete:active {
+            opacity: 1;
+        }
+        
+        /* Двойные пары */
+        .lesson-double {
+            padding: 14px 16px;
+            border-bottom: 0.5px solid var(--border);
+        }
+        
+        .lesson-double:last-child {
+            border-bottom: none;
+        }
+        
+        .lesson-double.current {
+            background: var(--current-lesson);
+            border-left: 3px solid var(--current-border);
+            padding-left: 13px;
+        }
+        
+        .lesson-double-time {
+            font-size: 13px;
+            color: var(--accent);
+            font-weight: 600;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .lesson-double-items {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .lesson-double-item {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            padding: 12px 14px;
+            background: var(--inactive-bg);
+            border-radius: 12px;
+            transition: background 0.3s;
+        }
+        
+        .lesson-double-item.num-item {
+            background: var(--numerator-bg);
+            border: 1px solid var(--numerator);
+        }
+        
+        .lesson-double-item.den-item {
+            background: var(--denominator-bg);
+            border: 1px solid var(--denominator);
+        }
+        
+        .lesson-double-item.inactive-item {
+            opacity: 0.4;
+        }
+        
+        .lesson-double-item-main {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 12px;
+        }
+        
+        .lesson-double-item .lesson-info {
+            flex: 1;
+        }
+        
+        .lesson-double-item .lesson-name {
+            font-size: 16px;
+            margin-bottom: 2px;
+        }
+        
+        .lesson-double-item .lesson-teacher {
+            font-size: 13px;
+            margin-top: 4px;
+        }
+        
+        .lesson-double-item .lesson-room {
+            font-size: 14px;
+            padding: 6px 12px;
+        }
+        
+        .lesson-double-item .lesson-homework {
+            margin-top: 0;
+        }
+        
+        .group-label {
+            font-size: 11px;
+            font-weight: 600;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+        }
+        
+        .group-label.num-label {
+            color: var(--numerator);
+        }
+        
+        .group-label.den-label {
+            color: var(--denominator);
+        }
+        
+        .group-label.kg-label {
+            color: var(--text-secondary);
+        }
+        
+        .day-header {
+            font-size: 22px;
+            font-weight: 700;
+            margin: 28px 0 14px 4px;
+            color: var(--text-primary);
+        }
+        
+        .day-header:first-of-type {
+            margin-top: 0;
+        }
+        
+        .expand-hint {
+            text-align: center;
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-top: 20px;
+        }
+        
+        .no-lessons {
+            text-align: center;
+            padding: 50px 20px;
+            color: var(--text-secondary);
+            font-size: 17px;
+        }
+        
+        .no-lessons-emoji {
+            font-size: 56px;
+            margin-bottom: 14px;
+        }
+        
+        /* Форма добавления ДЗ - минималистичная */
+        .hw-form-mini {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 16px;
+            margin-top: 28px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+        }
+        
+        .hw-form-mini-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 14px;
+            color: var(--text-primary);
+        }
+        
+        .hw-form-mini-row {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .hw-mini-input {
+            flex: 1;
+            padding: 14px 16px;
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            font-size: 16px;
+            background: var(--bg);
+            color: var(--text-primary);
+            font-family: inherit;
+            transition: border-color 0.2s;
+        }
+        
+        .hw-mini-input:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+        
+        .hw-mini-input::placeholder {
+            color: var(--text-secondary);
+        }
+        
+        .hw-mini-input.error {
+            border-color: var(--danger);
+        }
+        
+        .hw-mini-btn {
+            padding: 14px 20px;
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity 0.2s;
+            white-space: nowrap;
+        }
+        
+        .hw-mini-btn:active {
+            opacity: 0.8;
+        }
+        
+        /* Модальное окно */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+            padding: 20px;
+        }
+        
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .modal {
+            background: var(--card-bg);
+            border-radius: 20px;
+            width: 100%;
+            max-width: 360px;
+            padding: 24px;
+            transform: scale(0.9);
+            transition: transform 0.3s;
+        }
+        
+        .modal-overlay.active .modal {
+            transform: scale(1);
+        }
+        
+        .modal-title {
+            font-size: 20px;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 20px;
+            color: var(--text-primary);
+        }
+        
+        .modal-section {
+            margin-bottom: 20px;
+        }
+        
+        .modal-label {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            margin-bottom: 10px;
+            display: block;
+        }
+        
+        .modal-select {
+            width: 100%;
+            padding: 14px 16px;
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            font-size: 16px;
+            background: var(--bg);
+            color: var(--text-primary);
+            font-family: inherit;
+            -webkit-appearance: none;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%238e8e93' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10l-5 5z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 14px center;
+            padding-right: 40px;
+            transition: border-color 0.2s;
+        }
+        
+        .modal-select:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+        
+        .modal-select.error {
+            border-color: var(--danger);
+        }
+        
+        .modal-date {
+            width: 100%;
+            padding: 14px 16px;
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            font-size: 16px;
+            background: var(--bg);
+            color: var(--text-primary);
+            font-family: inherit;
+        }
+        
+        .modal-date:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+        
+        .modal-buttons {
+            display: flex;
+            gap: 12px;
+        }
+        
+        .modal-btn {
+            flex: 1;
+            padding: 14px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+        
+        .modal-btn:active {
+            opacity: 0.8;
+        }
+        
+        .modal-btn.cancel {
+            background: var(--inactive-bg);
+            color: var(--text-primary);
+        }
+        
+        .modal-btn.confirm {
+            background: var(--accent);
+            color: white;
+        }
+        
+        /* Кастомный Alert */
+        .custom-alert {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+            padding: 20px;
+        }
+        
+        .custom-alert.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .alert-box {
+            background: var(--card-bg);
+            border-radius: 16px;
+            width: 100%;
+            max-width: 300px;
+            padding: 24px;
+            text-align: center;
+            transform: scale(0.9);
+            transition: transform 0.3s;
+        }
+        
+        .custom-alert.active .alert-box {
+            transform: scale(1);
+        }
+        
+        .alert-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+        
+        .alert-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: var(--text-primary);
+        }
+        
+        .alert-message {
+            font-size: 15px;
+            color: var(--text-secondary);
+            margin-bottom: 20px;
+            line-height: 1.4;
+        }
+        
+        .alert-buttons {
+            display: flex;
+            gap: 12px;
+        }
+        
+        .alert-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        
+        .alert-btn.secondary {
+            background: var(--inactive-bg);
+            color: var(--text-primary);
+        }
+        
+        .alert-btn.primary {
+            background: var(--accent);
+            color: white;
+        }
+        
+        .alert-btn.danger {
+            background: var(--danger);
+            color: white;
+        }
+        
+        /* Архив */
+        .archive-section {
+            display: none;
+        }
+        
+        .archive-section.active {
+            display: block;
+        }
+        
+        .archive-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .archive-tab {
+            flex: 1;
+            padding: 12px 16px;
+            border: none;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            background: var(--inactive-bg);
+            color: var(--text-secondary);
+            transition: all 0.2s;
+        }
+        
+        .archive-tab.active {
+            background: var(--accent);
+            color: white;
+        }
+        
+        .archive-content {
+            display: none;
+        }
+        
+        .archive-content.active {
+            display: block;
+        }
+        
+        .archive-card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+        }
+        
+        .archive-date {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 12px;
+        }
+        
+        .archive-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 12px 0;
+            border-bottom: 0.5px solid var(--border);
+        }
+        
+        .archive-item:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+        
+        .archive-status {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            flex-shrink: 0;
+            font-weight: bold;
+        }
+        
+        .archive-status.done {
+            background: var(--success);
+            color: white;
+        }
+        
+        .archive-status.missed {
+            background: var(--danger);
+            color: white;
+        }
+        
+        .archive-status.pending {
+            background: var(--hw-border);
+            color: white;
+        }
+        
+        .archive-info {
+            flex: 1;
+        }
+        
+        .archive-subject {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        
+        .archive-text {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-top: 4px;
+            line-height: 1.4;
+        }
+        
+        .archive-deadline {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+        
+        .archive-deadline.urgent {
+            color: var(--danger);
+        }
+        
+        .archive-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .archive-action-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+        
+        .archive-action-btn.check {
+            background: rgba(52, 199, 89, 0.15);
+            color: var(--success);
+        }
+        
+        .archive-action-btn.delete {
+            background: rgba(255, 59, 48, 0.15);
+            color: var(--danger);
+        }
+        
+        .empty-archive {
+            text-align: center;
+            padding: 50px 20px;
+            color: var(--text-secondary);
+        }
+        
+        .empty-archive-emoji {
+            font-size: 56px;
+            margin-bottom: 14px;
+        }
+        
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body class="today-view">
+    <div class="container">
+        <div class="theme-toggle-standalone">
+            <div class="theme-toggle">
+                <div class="toggle-switch" id="themeToggleStandalone" onclick="toggleTheme()">
+                    <div class="toggle-knob"></div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="top-bar">
+            <button class="back-btn" onclick="showToday()">
+                <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 9H3m0 0l5 5M3 9l5-5"/></svg>
+                Назад
+            </button>
+            
+            <div class="top-bar-right">
+                <button class="archive-btn" onclick="toggleArchive()">
+                    <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 8v13H3V8M1 3h22v5H1zM10 12h4"/></svg>
+                    <span id="archiveBtnText">Архив</span>
+                </button>
+                <div class="theme-toggle">
+                    <div class="toggle-switch" id="themeToggle" onclick="toggleTheme()">
+                        <div class="toggle-knob"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="header">
+            <div class="day-title" id="dayTitle">Загрузка...</div>
+            <div class="date-info" id="dateInfo"></div>
+            <div class="week-type" id="weekType">
+                <span class="week-type-dot numerator"></span>
+                <span id="weekTypeName">Числитель</span>
+                <span class="week-number" id="weekNumber"></span>
+            </div>
+        </div>
+        
+        <div id="scheduleContent"></div>
+        <div id="archiveSection" class="archive-section"></div>
+        
+        <div class="expand-hint" id="expandHint">Нажмите для полного расписания</div>
+        
+        <!-- Минималистичная форма ДЗ -->
+        <div id="hwFormSection">
+            <div class="hw-form-mini">
+                <div class="hw-form-mini-title">Добавить ДЗ</div>
+                <div class="hw-form-mini-row">
+                    <input type="text" class="hw-mini-input" id="hwText" placeholder="Введите задание...">
+                    <button class="hw-mini-btn" onclick="openHwModal()">Далее</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Модальное окно добавления ДЗ -->
+    <div class="modal-overlay" id="hwModal">
+        <div class="modal">
+            <div class="modal-title">Новое задание</div>
+            
+            <div class="modal-section">
+                <label class="modal-label">Предмет</label>
+                <select class="modal-select" id="hwSubject">
+                    <option value="">Выберите предмет...</option>
+                </select>
+            </div>
+            
+            <div class="modal-section">
+                <label class="modal-label">Срок сдачи</label>
+                <input type="date" class="modal-date" id="hwDate">
+            </div>
+            
+            <div class="modal-buttons">
+                <button class="modal-btn cancel" onclick="closeHwModal()">Отмена</button>
+                <button class="modal-btn confirm" onclick="confirmAddHomework()">Добавить</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Кастомный Alert -->
+    <div class="custom-alert" id="customAlert">
+        <div class="alert-box">
+            <div class="alert-icon" id="alertIcon">⚠️</div>
+            <div class="alert-title" id="alertTitle">Заголовок</div>
+            <div class="alert-message" id="alertMessage">Сообщение</div>
+            <div class="alert-buttons" id="alertButtons"></div>
+        </div>
+    </div>
+
+    <script>
+        const schedule = {
+            1: [
+                { time: "07:30-09:00", name: "Статистика", type: "лек", teacher: "Омурканов Ырысбек Калыкович", room: "" },
+                { time: "10:00-11:30", name: "Иностранный язык", type: "пр", teacher: "Любимова Наталья Александровна", room: "4/201" },
+                { time: "11:40-13:10", name: "Микроэкономика", type: "лек", teacher: "Кумсков Геннадий Владимирович", room: "3/204" },
+                { time: "13:30-15:00", name: "История Кыргызстана", type: "пр", teacher: "Батырбаева Шайыркул Джолдошевна", room: "3/205" },
+                { time: "15:10-16:40", name: "Микроэкономика", type: "пр", teacher: "Кумсков Геннадий Владимирович", room: "3/204" }
+            ],
+            2: [
+                { time: "07:30-09:00", name: "Физическая культура и спорт", type: "пр", teacher: "", room: "" },
+                { time: "10:00-11:30", name: "Психология общения", type: "лек", teacher: "Арунова Айзада Абдыкеримовна", room: "3/207", week: "num" },
+                { time: "11:40-13:10", name: "Психология общения", type: "пр", teacher: "Арунова Айзада Абдыкеримовна", room: "3/204", week: "num" },
+                { time: "11:40-13:10", name: "Информационные технологии в профессиональной деятельности", type: "пр", teacher: "Сейталиева Насихат Ашымбековна", room: "3/204", week: "den" }
+            ],
+            3: [
+                { time: "07:30-09:00", name: "История Кыргызстана", type: "лек", teacher: "Марченко Лариса Юрьевна", room: "" },
+                { time: "10:00-11:30", name: "Кыргызский язык", type: "пр", teacher: "Рыспаева Гулжамал Сапарбековна", room: "11/109", kgGroup: "cont" },
+                { time: "10:00-11:30", name: "Кыргызский язык", type: "", teacher: "", room: "", kgGroup: "beg" }
+            ],
+            4: [
+                { time: "10:00-11:30", name: "Иностранный язык", type: "пр", teacher: "Любимова Наталья Александровна", room: "3/201" },
+                { time: "11:40-13:10", name: "Статистика", type: "пр", teacher: "Омурканов Ырысбек Калыкович", room: "3/205" },
+                { time: "13:30-15:00", name: "Информационные технологии в профессиональной деятельности", type: "пр", teacher: "Сейталиева Насихат Ашымбековна", room: "11/213", week: "num" },
+                { time: "13:30-15:00", name: "Информационные технологии в профессиональной деятельности", type: "пр", teacher: "Сейталиева Насихат Ашымбековна", room: "11/213", week: "den" },
+                { time: "15:10-16:40", name: "Информационные технологии в профессиональной деятельности", type: "пр", teacher: "Сейталиева Насихат Ашымбековна", room: "11/213", week: "num" },
+                { time: "15:10-16:40", name: "Информационные технологии в профессиональной деятельности", type: "пр", teacher: "Сейталиева Насихат Ашымбековна", room: "11/213", week: "den" }
+            ],
+            5: [
+                { time: "07:30-09:00", name: "Физическая культура и спорт", type: "пр", teacher: "", room: "" },
+                { time: "10:00-11:30", name: "Кыргызский язык", type: "пр", teacher: "Рыспаева Гулжамал Сапарбековна", room: "", kgGroup: "cont" },
+                { time: "10:00-11:30", name: "Кыргызский язык", type: "", teacher: "", room: "", kgGroup: "beg" },
+                { time: "11:40-13:10", name: "Экономическая теория", type: "пр", teacher: "Крыжанова Лариса Степановна", room: "3/204" },
+                { time: "13:30-15:00", name: "Русский язык", type: "пр", teacher: "Дугина Ольга Васильевна", room: "3/208" }
+            ],
+            6: [
+                { time: "10:00-11:30", name: "Высшая математика", type: "пр", teacher: "Байзаков Асан Байзакович", room: "3/209" },
+                { time: "11:40-13:10", name: "Высшая математика", type: "лек", teacher: "Байзаков Асан Байзакович", room: "3/209" },
+                { time: "13:30-15:00", name: "Кыргызский язык", type: "пр", teacher: "Рыспаева Гулжамал Сапарбековна", room: "11/106", kgGroup: "cont" }
+            ],
+            0: []
+        };
+
+        const dayNames = ['Воскресенье', 'Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота'];
+        const months = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'];
+        const monthsShort = ['янв', 'фев', 'мар', 'апр', 'мая', 'июн', 'июл', 'авг', 'сен', 'окт', 'ноя', 'дек'];
+        
+        let currentWeekType = 'num';
+        let currentWeekNumber = 1;
+        let isFullView = false;
+        let isArchiveView = false;
+        let isDarkTheme = false;
+        let currentArchiveTab = 'upcoming';
+        let pendingHwText = '';
+        
+        // Домашние задания
+        let homeworks = JSON.parse(localStorage.getItem('homeworks') || '[]');
+        let archivedHomeworks = JSON.parse(localStorage.getItem('archivedHomeworks') || '[]');
+
+        // Список всех предметов
+        const subjects = [
+            "Статистика",
+            "Иностранный язык",
+            "Микроэкономика",
+            "История Кыргызстана",
+            "Физическая культура и спорт",
+            "Психология общения",
+            "Информационные технологии в профессиональной деятельности",
+            "Кыргызский язык",
+            "Экономическая теория",
+            "Русский язык",
+            "Высшая математика"
+        ];
+
+        // Кастомный Alert
+        function showAlert(options) {
+            const alert = document.getElementById('customAlert');
+            document.getElementById('alertIcon').textContent = options.icon || '⚠️';
+            document.getElementById('alertTitle').textContent = options.title || 'Внимание';
+            document.getElementById('alertMessage').textContent = options.message || '';
+            
+            const buttonsHtml = options.buttons.map(btn => 
+                `<button class="alert-btn ${btn.type || 'primary'}" onclick="${btn.action}">${btn.text}</button>`
+            ).join('');
+            document.getElementById('alertButtons').innerHTML = buttonsHtml;
+            
+            alert.classList.add('active');
+        }
+        
+        function hideAlert() {
+            document.getElementById('customAlert').classList.remove('active');
+        }
+
+        function getAcademicWeekInfo(date) {
+            const academicYearStart = new Date(2025, 8, 1);
+            
+            if (date < academicYearStart) {
+                return { weekNumber: 0, type: 'num' };
+            }
+            
+            const diffTime = date.getTime() - academicYearStart.getTime();
+            const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+            const weekNumber = Math.floor(diffDays / 7) + 1;
+            const isNumerator = weekNumber % 2 === 1;
+            
+            return {
+                weekNumber: weekNumber,
+                type: isNumerator ? 'num' : 'den'
+            };
+        }
+
+        function parseTime(timeStr) {
+            const [start, end] = timeStr.split('-');
+            const [startH, startM] = start.split(':').map(Number);
+            const [endH, endM] = end.split(':').map(Number);
+            return {
+                start: startH * 60 + startM,
+                end: endH * 60 + endM
+            };
+        }
+
+        function isCurrentLesson(timeStr) {
+            const now = new Date();
+            const currentMinutes = now.getHours() * 60 + now.getMinutes();
+            const { start, end } = parseTime(timeStr);
+            return currentMinutes >= start && currentMinutes <= end;
+        }
+
+        function updateWeekTypeDisplay() {
+            const weekTypeEl = document.getElementById('weekType');
+            const dot = document.querySelector('.week-type-dot');
+            const name = document.getElementById('weekTypeName');
+            const weekNum = document.getElementById('weekNumber');
+            
+            dot.className = 'week-type-dot ' + (currentWeekType === 'num' ? 'numerator' : 'denominator');
+            weekTypeEl.className = 'week-type ' + (currentWeekType === 'num' ? 'numerator-week' : 'denominator-week');
+            name.textContent = currentWeekType === 'num' ? 'Числитель' : 'Знаменатель';
+            
+            if (currentWeekNumber > 0) {
+                weekNum.textContent = `(${currentWeekNumber} нед.)`;
+            } else {
+                weekNum.textContent = '(до начала)';
+            }
+        }
+
+        function updateThemeColor() {
+            let metaThemeColor = document.querySelector('meta[name="theme-color"]:not([media])');
+            
+            if (!metaThemeColor) {
+                metaThemeColor = document.createElement('meta');
+                metaThemeColor.name = 'theme-color';
+                document.head.appendChild(metaThemeColor);
+            }
+            
+            metaThemeColor.content = isDarkTheme ? '#000000' : '#f2f2f7';
+        }
+
+        function toggleTheme() {
+            isDarkTheme = !isDarkTheme;
+            document.body.classList.toggle('dark-theme', isDarkTheme);
+            document.querySelectorAll('.toggle-switch').forEach(el => {
+                el.classList.toggle('active', isDarkTheme);
+            });
+            localStorage.setItem('darkTheme', isDarkTheme);
+            updateThemeColor();
+        }
+
+        function loadTheme() {
+            isDarkTheme = localStorage.getItem('darkTheme') === 'true';
+            document.body.classList.toggle('dark-theme', isDarkTheme);
+            document.querySelectorAll('.toggle-switch').forEach(el => {
+                el.classList.toggle('active', isDarkTheme);
+            });
+            updateThemeColor();
+        }
+
+        function getDaysUntil(dateStr) {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const target = new Date(dateStr);
+            target.setHours(0, 0, 0, 0);
+            const diff = Math.ceil((target - today) / (1000 * 60 * 60 * 24));
+            return diff;
+        }
+
+        function formatDeadline(dateStr) {
+            const days = getDaysUntil(dateStr);
+            const date = new Date(dateStr);
+            const dateFormatted = `${date.getDate()} ${monthsShort[date.getMonth()]}`;
+            
+            if (days < 0) return { text: `${dateFormatted} • просрочено`, urgent: true };
+            if (days === 0) return { text: `${dateFormatted} • сегодня!`, urgent: true };
+            if (days === 1) return { text: `${dateFormatted} • завтра`, urgent: true };
+            if (days <= 3) return { text: `${dateFormatted} • ${days} дня`, urgent: true };
+            return { text: `${dateFormatted} • ${days} дн.`, urgent: false };
+        }
+
+        function getHomeworksForSubject(subjectName) {
+            return homeworks.filter(hw => hw.subject === subjectName && !hw.completed);
+        }
+
+        function renderHomeworkBlock(subjectName) {
+            const hws = getHomeworksForSubject(subjectName);
+            if (hws.length === 0) return '';
+            
+            let html = '';
+            hws.forEach(hw => {
+                const deadline = formatDeadline(hw.date);
+                html += `
+                <div class="lesson-homework ${hw.completed ? 'completed' : ''}" data-hw-id="${hw.id}">
+                    <div class="hw-header">
+                        <span class="hw-label">ДЗ</span>
+                        <span class="hw-deadline ${deadline.urgent ? 'urgent' : ''}">${deadline.text}</span>
+                    </div>
+                    <div class="hw-content">
+                        <div class="hw-checkbox ${hw.completed ? 'checked' : ''}" onclick="toggleHomework('${hw.id}', event)"></div>
+                        <div class="hw-text">${hw.text}</div>
+                        <button class="hw-delete" onclick="confirmDeleteHomework('${hw.id}', event)">×</button>
+                    </div>
+                </div>`;
+            });
+            return html;
+        }
+
+        function toggleHomework(id, event) {
+            event.stopPropagation();
+            const hw = homeworks.find(h => h.id === id);
+            if (hw) {
+                hw.completed = !hw.completed;
+                saveHomeworks();
+                refreshView();
+            }
+        }
+        
+        function confirmDeleteHomework(id, event) {
+            event.stopPropagation();
+            showAlert({
+                icon: '🗑️',
+                title: 'Удалить задание?',
+                message: 'Это действие нельзя отменить',
+                buttons: [
+                    { text: 'Отмена', type: 'secondary', action: 'hideAlert()' },
+                    { text: 'Удалить', type: 'danger', action: `deleteHomework('${id}')` }
+                ]
+            });
+        }
+        
+        function deleteHomework(id) {
+            homeworks = homeworks.filter(h => h.id !== id);
+            saveHomeworks();
+            hideAlert();
+            refreshView();
+        }
+        
+        function deleteArchivedHomework(id) {
+            archivedHomeworks = archivedHomeworks.filter(h => h.id !== id);
+            saveHomeworks();
+            hideAlert();
+            showArchive();
+        }
+
+        function saveHomeworks() {
+            localStorage.setItem('homeworks', JSON.stringify(homeworks));
+            localStorage.setItem('archivedHomeworks', JSON.stringify(archivedHomeworks));
+        }
+
+        function archiveOldHomeworks() {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            const toArchive = homeworks.filter(hw => {
+                const hwDate = new Date(hw.date);
+                hwDate.setHours(0, 0, 0, 0);
+                return hwDate < today;
+            });
+            
+            if (toArchive.length > 0) {
+                archivedHomeworks = [...archivedHomeworks, ...toArchive];
+                homeworks = homeworks.filter(hw => {
+                    const hwDate = new Date(hw.date);
+                    hwDate.setHours(0, 0, 0, 0);
+                    return hwDate >= today;
+                });
+                saveHomeworks();
+            }
+        }
+        
+        function refreshView() {
+            if (isArchiveView) {
+                showArchive();
+            } else if (isFullView) {
+                showFullSchedule();
+            } else {
+                showToday();
+            }
+        }
+
+        function groupLessonsByTime(lessons) {
+            const grouped = {};
+            lessons.forEach(l => {
+                if (!grouped[l.time]) {
+                    grouped[l.time] = [];
+                }
+                grouped[l.time].push(l);
+            });
+            return grouped;
+        }
+
+        function renderLessons(lessons, checkCurrent = false) {
+            if (!lessons.length) {
+                return `
+                    <div class="no-lessons">
+                        <div class="no-lessons-emoji">🎉</div>
+                        Пар нет — отдыхай!
+                    </div>
+                `;
+            }
+            
+            const isToday = checkCurrent;
+            const grouped = groupLessonsByTime(lessons);
+            let html = '';
+            
+            Object.keys(grouped).forEach(time => {
+                const timeLessons = grouped[time];
+                const isCurrent = isToday && isCurrentLesson(time);
+                
+                const kgLessons = timeLessons.filter(l => l.kgGroup);
+                const weekLessons = timeLessons.filter(l => l.week && !l.kgGroup);
+                const regularLessons = timeLessons.filter(l => !l.kgGroup && !l.week);
+                
+                // Обычные пары
+                regularLessons.forEach(l => {
+                    const typeStr = l.type ? ` (${l.type})` : '';
+                    const currentClass = isCurrent ? 'current' : '';
+                    const hwHtml = renderHomeworkBlock(l.name);
+                    
+                    html += `
+                    <div class="lesson ${currentClass}">
+                        <div class="lesson-time">
+                            ${time}
+                            ${isCurrent ? '<span class="current-badge">СЕЙЧАС</span>' : ''}
+                        </div>
+                        <div class="lesson-main">
+                            <div class="lesson-info">
+                                <div class="lesson-name">${l.name}${typeStr}</div>
+                                ${l.teacher ? '<div class="lesson-teacher">' + l.teacher + '</div>' : ''}
+                            </div>
+                            ${l.room ? '<div class="lesson-room">' + l.room + '</div>' : ''}
+                        </div>
+                        ${hwHtml}
+                    </div>`;
+                });
+                
+                // Пары по неделям (числитель/знаменатель)
+                if (weekLessons.length > 0) {
+                    html += `
+                    <div class="lesson-double ${isCurrent ? 'current' : ''}">
+                        <div class="lesson-double-time">
+                            ${time}
+                            ${isCurrent ? '<span class="current-badge">СЕЙЧАС</span>' : ''}
+                        </div>
+                        <div class="lesson-double-items">`;
+                    
+                    weekLessons.forEach(l => {
+                        const typeStr = l.type ? ` (${l.type})` : '';
+                        const weekLabel = l.week === 'num' ? 'Числитель' : 'Знаменатель';
+                        const labelClass = l.week === 'num' ? 'num-label' : 'den-label';
+                        const itemClass = l.week === 'num' ? 'num-item' : 'den-item';
+                        const isInactive = l.week !== currentWeekType;
+                        const hwHtml = renderHomeworkBlock(l.name);
+                        
+                        html += `
+                            <div class="lesson-double-item ${itemClass} ${isInactive ? 'inactive-item' : ''}">
+                                <div class="lesson-double-item-main">
+                                    <div class="lesson-info">
+                                        <div class="group-label ${labelClass}">${weekLabel}</div>
+                                        <div class="lesson-name">${l.name}${typeStr}</div>
+                                        ${l.teacher ? '<div class="lesson-teacher">' + l.teacher + '</div>' : ''}
+                                    </div>
+                                    ${l.room ? '<div class="lesson-room">' + l.room + '</div>' : ''}
+                                </div>
+                                ${!isInactive ? hwHtml : ''}
+                            </div>`;
+                    });
+                    
+                    html += `
+                        </div>
+                    </div>`;
+                }
+                
+                // Кыргызский язык — деление по группам
+                if (kgLessons.length > 0) {
+                    const contLesson = kgLessons.find(l => l.kgGroup === 'cont');
+                    const begLesson = kgLessons.find(l => l.kgGroup === 'beg');
+                    
+                    html += `
+                    <div class="lesson-double ${isCurrent ? 'current' : ''}">
+                        <div class="lesson-double-time">
+                            ${time}
+                            ${isCurrent ? '<span class="current-badge">СЕЙЧАС</span>' : ''}
+                        </div>
+                        <div class="lesson-double-items">`;
+                    
+                    if (contLesson) {
+                        const contTypeStr = contLesson.type ? ` (${contLesson.type})` : '';
+                        const hwHtml = renderHomeworkBlock(contLesson.name);
+                        html += `
+                            <div class="lesson-double-item">
+                                <div class="lesson-double-item-main">
+                                    <div class="lesson-info">
+                                        <div class="group-label kg-label">Продолжающая группа</div>
+                                        <div class="lesson-name">${contLesson.name}${contTypeStr}</div>
+                                        ${contLesson.teacher ? '<div class="lesson-teacher">' + contLesson.teacher + '</div>' : ''}
+                                    </div>
+                                    ${contLesson.room ? '<div class="lesson-room">' + contLesson.room + '</div>' : ''}
+                                </div>
+                                ${hwHtml}
+                            </div>`;
+                    }
+                    
+                    if (begLesson) {
+                        const begTypeStr = begLesson.type ? ` (${begLesson.type})` : '';
+                        html += `
+                            <div class="lesson-double-item">
+                                <div class="lesson-double-item-main">
+                                    <div class="lesson-info">
+                                        <div class="group-label kg-label">Начинающая группа</div>
+                                        <div class="lesson-name">${begLesson.name}${begTypeStr}</div>
+                                        ${begLesson.teacher ? '<div class="lesson-teacher">' + begLesson.teacher + '</div>' : ''}
+                                    </div>
+                                    ${begLesson.room ? '<div class="lesson-room">' + begLesson.room + '</div>' : ''}
+                                </div>
+                            </div>`;
+                    }
+                    
+                    html += `
+                        </div>
+                    </div>`;
+                }
+            });
+            
+            return html;
+        }
+
+        function populateSubjects() {
+            const select = document.getElementById('hwSubject');
+            select.innerHTML = '<option value="">Выберите предмет...</option>';
+            subjects.forEach(s => {
+                select.innerHTML += `<option value="${s}">${s}</option>`;
+            });
+        }
+
+        function setDefaultDate() {
+            const dateInput = document.getElementById('hwDate');
+            const tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            dateInput.value = tomorrow.toISOString().split('T')[0];
+            dateInput.min = new Date().toISOString().split('T')[0];
+            dateInput.max = '2027-12-31';
+        }
+        
+        function openHwModal() {
+            const textInput = document.getElementById('hwText');
+            const text = textInput.value.trim();
+            
+            if (!text) {
+                textInput.classList.add('shake', 'error');
+                setTimeout(() => {
+                    textInput.classList.remove('shake', 'error');
+                }, 500);
+                return;
+            }
+            
+            pendingHwText = text;
+            setDefaultDate();
+            document.getElementById('hwSubject').value = '';
+            document.getElementById('hwModal').classList.add('active');
+        }
+        
+        function closeHwModal() {
+            document.getElementById('hwModal').classList.remove('active');
+        }
+        
+        function confirmAddHomework() {
+            const subjectSelect = document.getElementById('hwSubject');
+            const subject = subjectSelect.value;
+            const date = document.getElementById('hwDate').value;
+            
+            if (!subject) {
+                subjectSelect.classList.add('shake', 'error');
+                setTimeout(() => {
+                    subjectSelect.classList.remove('shake', 'error');
+                }, 500);
+                return;
+            }
+            
+            const hw = {
+                id: Date.now().toString(),
+                subject: subject,
+                text: pendingHwText,
+                date: date,
+                completed: false,
+                createdAt: new Date().toISOString()
+            };
+            
+            homeworks.push(hw);
+            saveHomeworks();
+            
+            document.getElementById('hwText').value = '';
+            pendingHwText = '';
+            closeHwModal();
+            
+            showToday();
+        }
+
+        function showToday() {
+            isFullView = false;
+            isArchiveView = false;
+            document.body.classList.remove('full-schedule');
+            document.body.classList.add('today-view');
+            document.getElementById('expandHint').classList.remove('hidden');
+            document.getElementById('hwFormSection').classList.remove('hidden');
+            document.getElementById('scheduleContent').classList.remove('hidden');
+            document.getElementById('archiveSection').classList.remove('active');
+            
+            archiveOldHomeworks();
+            
+            const today = new Date();
+            const dayNum = today.getDay();
+            const dayLessons = schedule[dayNum] || [];
+            
+            document.getElementById('dayTitle').textContent = dayNames[dayNum];
+            document.getElementById('dateInfo').textContent = `${today.getDate()} ${months[today.getMonth()]}`;
+            
+            document.getElementById('scheduleContent').innerHTML = `
+                <div class="schedule-card" onclick="showFullSchedule()">
+                    ${renderLessons(dayLessons, true)}
+                </div>
+            `;
+        }
+
+        function showFullSchedule() {
+            isFullView = true;
+            isArchiveView = false;
+            document.body.classList.add('full-schedule');
+            document.body.classList.remove('today-view');
+            document.getElementById('expandHint').classList.add('hidden');
+            document.getElementById('hwFormSection').classList.add('hidden');
+            document.getElementById('scheduleContent').classList.remove('hidden');
+            document.getElementById('archiveSection').classList.remove('active');
+            document.getElementById('archiveBtnText').textContent = 'Архив';
+            document.getElementById('dayTitle').textContent = 'Расписание';
+            document.getElementById('dateInfo').textContent = 'Все дни недели';
+            
+            const today = new Date();
+            const todayNum = today.getDay();
+            
+            let html = '';
+            for (let i = 1; i <= 6; i++) {
+                const lessons = schedule[i];
+                const isToday = i === todayNum;
+                html += `
+                    <div class="day-header">${dayNames[i]}${isToday ? ' (сегодня)' : ''}</div>
+                    <div class="schedule-card no-click">
+                        ${renderLessons(lessons, isToday)}
+                    </div>
+                `;
+            }
+            
+            document.getElementById('scheduleContent').innerHTML = html;
+        }
+
+        function toggleArchive() {
+            if (!isArchiveView) {
+                showArchive();
+            } else {
+                showFullSchedule();
+            }
+        }
+
+        function showArchive() {
+            isArchiveView = true;
+            document.getElementById('scheduleContent').classList.add('hidden');
+            document.getElementById('archiveSection').classList.add('active');
+            document.getElementById('archiveBtnText').textContent = 'Расписание';
+            document.getElementById('dayTitle').textContent = 'Архив ДЗ';
+            document.getElementById('dateInfo').textContent = 'Управление заданиями';
+            
+            // Разделяем на предстоящие и прошедшие
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            const upcomingHw = homeworks.filter(hw => {
+                const hwDate = new Date(hw.date);
+                hwDate.setHours(0, 0, 0, 0);
+                return hwDate >= today;
+            }).sort((a, b) => new Date(a.date) - new Date(b.date));
+            
+            const pastHw = archivedHomeworks.sort((a, b) => new Date(b.date) - new Date(a.date));
+            
+            let html = `
+                <div class="archive-tabs">
+                    <button class="archive-tab ${currentArchiveTab === 'upcoming' ? 'active' : ''}" onclick="switchArchiveTab('upcoming')">
+                        Предстоящие (${upcomingHw.length})
+                    </button>
+                    <button class="archive-tab ${currentArchiveTab === 'past' ? 'active' : ''}" onclick="switchArchiveTab('past')">
+                        Прошедшие (${pastHw.length})
+                    </button>
+                </div>
+                
+                <div class="archive-content ${currentArchiveTab === 'upcoming' ? 'active' : ''}" id="upcomingContent">
+                    ${renderUpcomingHomeworks(upcomingHw)}
+                </div>
+                
+                <div class="archive-content ${currentArchiveTab === 'past' ? 'active' : ''}" id="pastContent">
+                    ${renderPastHomeworks(pastHw)}
+                </div>
+            `;
+            
+            document.getElementById('archiveSection').innerHTML = html;
+        }
+        
+        function switchArchiveTab(tab) {
+            currentArchiveTab = tab;
+            document.querySelectorAll('.archive-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.archive-content').forEach(c => c.classList.remove('active'));
+            
+            document.querySelector(`.archive-tab:${tab === 'upcoming' ? 'first-child' : 'last-child'}`).classList.add('active');
+            document.getElementById(tab === 'upcoming' ? 'upcomingContent' : 'pastContent').classList.add('active');
+        }
+        
+        function renderUpcomingHomeworks(hws) {
+            if (hws.length === 0) {
+                return `
+                    <div class="empty-archive">
+                        <div class="empty-archive-emoji">📝</div>
+                        Нет предстоящих заданий
+                    </div>
+                `;
+            }
+            
+            let html = '<div class="archive-card">';
+            hws.forEach(hw => {
+                const deadline = formatDeadline(hw.date);
+                html += `
+                <div class="archive-item">
+                    <div class="archive-status pending">!</div>
+                    <div class="archive-info">
+                        <div class="archive-subject">${hw.subject}</div>
+                        <div class="archive-text">${hw.text}</div>
+                        <div class="archive-deadline ${deadline.urgent ? 'urgent' : ''}">${deadline.text}</div>
+                    </div>
+                    <div class="archive-actions">
+                        <button class="archive-action-btn check" onclick="toggleHomework('${hw.id}', event)">✓</button>
+                        <button class="archive-action-btn delete" onclick="confirmDeleteHomework('${hw.id}', event)">×</button>
+                    </div>
+                </div>`;
+            });
+            html += '</div>';
+            return html;
+        }
+        
+        function renderPastHomeworks(hws) {
+            if (hws.length === 0) {
+                return `
+                    <div class="empty-archive">
+                        <div class="empty-archive-emoji">📚</div>
+                        Архив пуст
+                    </div>
+                `;
+            }
+            
+            // Группируем по датам
+            const grouped = {};
+            hws.forEach(hw => {
+                if (!grouped[hw.date]) {
+                    grouped[hw.date] = [];
+                }
+                grouped[hw.date].push(hw);
+            });
+            
+            let html = '';
+            Object.keys(grouped).sort((a, b) => new Date(b) - new Date(a)).forEach(date => {
+                const d = new Date(date);
+                const dateStr = `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
+                
+                html += `<div class="archive-card">
+                    <div class="archive-date">${dateStr}</div>`;
+                
+                grouped[date].forEach(hw => {
+                    const statusClass = hw.completed ? 'done' : 'missed';
+                    const statusIcon = hw.completed ? '✓' : '✗';
+                    
+                    html += `
+                    <div class="archive-item">
+                        <div class="archive-status ${statusClass}">${statusIcon}</div>
+                        <div class="archive-info">
+                            <div class="archive-subject">${hw.subject}</div>
+                            <div class="archive-text">${hw.text}</div>
+                        </div>
+                        <div class="archive-actions">
+                            <button class="archive-action-btn delete" onclick="confirmDeleteArchivedHomework('${hw.id}', event)">×</button>
+                        </div>
+                    </div>`;
+                });
+                
+                html += '</div>';
+            });
+            
+            return html;
+        }
+        
+        function confirmDeleteArchivedHomework(id, event) {
+            event.stopPropagation();
+            showAlert({
+                icon: '🗑️',
+                title: 'Удалить из архива?',
+                message: 'Запись будет удалена навсегда',
+                buttons: [
+                    { text: 'Отмена', type: 'secondary', action: 'hideAlert()' },
+                    { text: 'Удалить', type: 'danger', action: `deleteArchivedHomework('${id}')` }
+                ]
+            });
+        }
+
+        // Автообновление каждую минуту
+        setInterval(() => {
+            if (!isFullView && !isArchiveView) {
+                showToday();
+            }
+        }, 60000);
+
+        // Инициализация
+        loadTheme();
+        populateSubjects();
+        archiveOldHomeworks();
+        const weekInfo = getAcademicWeekInfo(new Date());
+        currentWeekType = weekInfo.type;
+        currentWeekNumber = weekInfo.weekNumber;
+        updateWeekTypeDisplay();
+        showToday();
+    </script>
+</body>
+</html>
