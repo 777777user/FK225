@@ -6,67 +6,37 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Расписание">
-    <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
-    <meta name="theme-color" content="#f2f2f7" media="(prefers-color-scheme: light)">
+    <meta name="theme-color" content="#f2f2f7">
     <title>Расписание</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         
         :root {
-            --bg: #f2f2f7;
-            --card-bg: #fff;
-            --text-primary: #1c1c1e;
-            --text-secondary: #8e8e93;
-            --border: #e5e5ea;
-            --inactive-bg: #f5f5f7;
-            --accent: #007aff;
-            --current-lesson: rgba(52, 199, 89, 0.15);
-            --current-border: #34c759;
-            --hw-border: #ff9500;
-            --hw-bg: rgba(255, 149, 0, 0.08);
-            --danger: #ff3b30;
-            --success: #34c759;
-            --numerator: #5856d6;
-            --numerator-bg: rgba(88, 86, 214, 0.12);
-            --denominator: #af52de;
-            --denominator-bg: rgba(175, 82, 222, 0.12);
+            --bg: #f2f2f7; --card-bg: #fff; --text-primary: #1c1c1e; --text-secondary: #8e8e93;
+            --border: #e5e5ea; --inactive-bg: #f5f5f7; --accent: #007aff;
+            --current-lesson: rgba(52, 199, 89, 0.15); --current-border: #34c759;
+            --hw-border: #ff9500; --hw-bg: rgba(255, 149, 0, 0.08);
+            --danger: #ff3b30; --success: #34c759;
+            --numerator: #5856d6; --numerator-bg: rgba(88, 86, 214, 0.12);
+            --denominator: #af52de; --denominator-bg: rgba(175, 82, 222, 0.12);
             --disabled-bg: rgba(255, 59, 48, 0.08);
         }
         
         .dark-theme {
-            --bg: #000000;
-            --card-bg: #1c1c1e;
-            --text-primary: #ffffff;
-            --text-secondary: #8e8e93;
-            --border: #38383a;
-            --inactive-bg: #2c2c2e;
-            --accent: #0a84ff;
-            --current-lesson: rgba(48, 209, 88, 0.2);
-            --current-border: #30d158;
-            --hw-border: #ff9f0a;
-            --hw-bg: rgba(255, 159, 10, 0.15);
-            --numerator: #7d7aff;
-            --numerator-bg: rgba(125, 122, 255, 0.2);
-            --denominator: #da8fff;
-            --denominator-bg: rgba(218, 143, 255, 0.2);
+            --bg: #000; --card-bg: #1c1c1e; --text-primary: #fff; --text-secondary: #8e8e93;
+            --border: #38383a; --inactive-bg: #2c2c2e; --accent: #0a84ff;
+            --current-lesson: rgba(48, 209, 88, 0.2); --current-border: #30d158;
+            --hw-border: #ff9f0a; --hw-bg: rgba(255, 159, 10, 0.15);
+            --numerator: #7d7aff; --numerator-bg: rgba(125, 122, 255, 0.2);
+            --denominator: #da8fff; --denominator-bg: rgba(218, 143, 255, 0.2);
             --disabled-bg: rgba(255, 69, 58, 0.15);
         }
         
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
-            background: var(--bg);
-            min-height: 100vh;
-            min-height: 100dvh;
-            color: var(--text-primary);
-            padding-top: calc(env(safe-area-inset-top) + 16px);
-            padding-bottom: calc(env(safe-area-inset-bottom) + 100px);
-            padding-left: calc(env(safe-area-inset-left) + 16px);
-            padding-right: calc(env(safe-area-inset-right) + 16px);
+            background: var(--bg); min-height: 100dvh; color: var(--text-primary);
+            padding: calc(env(safe-area-inset-top) + 16px) calc(env(safe-area-inset-right) + 16px) 
+                     calc(env(safe-area-inset-bottom) + 100px) calc(env(safe-area-inset-left) + 16px);
             transition: background 0.3s, color 0.3s;
         }
         
@@ -74,96 +44,50 @@
         
         @keyframes shake {
             0%, 100% { transform: translateX(0); }
-            10%, 30%, 50%, 70%, 90% { transform: translateX(-6px); }
-            20%, 40%, 60%, 80% { transform: translateX(6px); }
+            20%, 60% { transform: translateX(-6px); }
+            40%, 80% { transform: translateX(6px); }
         }
-        .shake { animation: shake 0.5s ease-in-out; }
+        .shake { animation: shake 0.4s ease-in-out; }
         
-        /* Top Bar */
-        .top-bar {
-            display: none;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 16px;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
+        .top-bar { display: none; align-items: center; justify-content: space-between; margin-bottom: 16px; gap: 8px; flex-wrap: wrap; }
         .full-schedule .top-bar { display: flex; }
         
-        .back-btn, .archive-btn, .settings-btn {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            background: var(--card-bg);
-            border: none;
-            color: var(--accent);
-            padding: 10px 14px;
-            border-radius: 12px;
-            font-size: 14px;
-            font-weight: 500;
-            cursor: pointer;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+        .btn {
+            display: flex; align-items: center; gap: 6px; background: var(--card-bg); border: none;
+            padding: 10px 14px; border-radius: 12px; font-size: 14px; font-weight: 500; cursor: pointer;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08); color: var(--accent);
         }
-        .archive-btn { color: var(--hw-border); }
-        .settings-btn { color: var(--text-secondary); }
-        .back-btn:active, .archive-btn:active, .settings-btn:active { opacity: 0.7; transform: scale(0.97); }
+        .btn:active { opacity: 0.7; transform: scale(0.97); }
+        .btn.orange { color: var(--hw-border); }
+        .btn.gray { color: var(--text-secondary); }
         
         .top-bar-right { display: flex; align-items: center; gap: 8px; }
         
-        /* Theme Toggle */
-        .theme-toggle { display: flex; align-items: center; }
         .toggle-switch {
-            position: relative;
-            width: 51px;
-            height: 31px;
-            background: #e9e9eb;
-            border-radius: 16px;
-            cursor: pointer;
-            transition: background 0.3s;
+            position: relative; width: 51px; height: 31px; background: #e9e9eb;
+            border-radius: 16px; cursor: pointer; transition: background 0.3s;
         }
         .dark-theme .toggle-switch { background: #39393d; }
         .toggle-switch.active { background: #34c759; }
         .toggle-knob {
-            position: absolute;
-            top: 2px;
-            left: 2px;
-            width: 27px;
-            height: 27px;
-            background: #fff;
-            border-radius: 50%;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            position: absolute; top: 2px; left: 2px; width: 27px; height: 27px;
+            background: #fff; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.2);
             transition: transform 0.3s;
         }
         .toggle-switch.active .toggle-knob { transform: translateX(20px); }
         
-        /* Header */
         .header { text-align: center; margin-bottom: 20px; }
         .day-title { font-size: 32px; font-weight: 700; letter-spacing: -0.5px; }
         .date-info { font-size: 15px; color: var(--text-secondary); margin-top: 4px; }
         
-        .week-type-container {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-            margin-top: 12px;
-            flex-wrap: wrap;
-        }
-        
+        .week-type-container { display: flex; align-items: center; justify-content: center; gap: 12px; margin-top: 12px; flex-wrap: wrap; }
         .week-type {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            background: var(--card-bg);
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 13px;
-            font-weight: 600;
+            display: inline-flex; align-items: center; gap: 6px; background: var(--card-bg);
+            padding: 8px 16px; border-radius: 20px; font-size: 13px; font-weight: 600;
             box-shadow: 0 1px 3px rgba(0,0,0,0.08);
         }
         .week-type.numerator-week { background: var(--numerator-bg); color: var(--numerator); }
         .week-type.denominator-week { background: var(--denominator-bg); color: var(--denominator); }
-        
         .week-type-dot { width: 8px; height: 8px; border-radius: 50%; }
         .week-type-dot.numerator { background: var(--numerator); }
         .week-type-dot.denominator { background: var(--denominator); }
@@ -171,175 +95,72 @@
         .week-number { opacity: 0.8; font-weight: 400; margin-left: 4px; }
         
         .tomorrow-toggle {
-            background: var(--accent);
-            color: white;
-            padding: 6px 14px;
-            border-radius: 16px;
-            font-size: 13px;
-            font-weight: 600;
-            cursor: pointer;
-            border: none;
+            background: var(--accent); color: white; padding: 6px 14px; border-radius: 16px;
+            font-size: 13px; font-weight: 600; cursor: pointer; border: none;
         }
         .tomorrow-toggle:active { transform: scale(0.95); }
         .tomorrow-toggle.active { background: var(--success); }
         
-        /* Schedule Card */
         .schedule-card {
-            background: var(--card-bg);
-            border-radius: 16px;
-            padding: 4px 0;
-            margin-bottom: 12px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
-            cursor: pointer;
-            transition: transform 0.2s;
-            overflow: hidden;
+            background: var(--card-bg); border-radius: 16px; padding: 4px 0; margin-bottom: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06); cursor: pointer; transition: transform 0.2s; overflow: hidden;
         }
         .schedule-card:active { transform: scale(0.98); }
         .schedule-card.no-click { cursor: default; }
         .schedule-card.no-click:active { transform: none; }
         
-        /* Lesson */
-        .lesson {
-            padding: 14px 16px;
-            border-bottom: 0.5px solid var(--border);
-        }
+        .lesson { padding: 14px 16px; border-bottom: 0.5px solid var(--border); }
         .lesson:last-child { border-bottom: none; }
-        .lesson.current {
-            background: var(--current-lesson);
-            border-left: 3px solid var(--current-border);
-            padding-left: 13px;
-        }
-        .lesson.skipped {
-            background: var(--disabled-bg);
-            opacity: 0.6;
-        }
+        .lesson.current { background: var(--current-lesson); border-left: 3px solid var(--current-border); padding-left: 13px; }
+        .lesson.skipped { background: var(--disabled-bg); opacity: 0.6; }
         .lesson.skipped .lesson-name { text-decoration: line-through; }
         
-        .lesson-time {
-            font-size: 13px;
-            color: var(--accent);
-            font-weight: 600;
-            margin-bottom: 6px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
+        .lesson-time { font-size: 13px; color: var(--accent); font-weight: 600; margin-bottom: 6px; display: flex; align-items: center; gap: 8px; }
+        .badge { font-size: 10px; color: white; padding: 2px 6px; border-radius: 4px; font-weight: 600; }
+        .badge.current { background: var(--current-border); }
+        .badge.skipped { background: var(--danger); }
         
-        .current-badge {
-            font-size: 10px;
-            background: var(--current-border);
-            color: white;
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-weight: 600;
-        }
-        
-        .skipped-badge {
-            font-size: 10px;
-            background: var(--danger);
-            color: white;
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-weight: 600;
-        }
-        
-        .lesson-main {
-            display: flex;
-            align-items: flex-start;
-            justify-content: space-between;
-            gap: 12px;
-        }
+        .lesson-main { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
         .lesson-info { flex: 1; }
         .lesson-name { font-size: 17px; font-weight: 600; line-height: 1.3; }
         .lesson-teacher { font-size: 14px; color: var(--text-secondary); margin-top: 4px; }
         .lesson-room {
-            font-size: 15px;
-            color: var(--accent);
-            font-weight: 600;
-            background: rgba(0, 122, 255, 0.1);
-            padding: 8px 14px;
-            border-radius: 10px;
-            flex-shrink: 0;
+            font-size: 15px; color: var(--accent); font-weight: 600;
+            background: rgba(0, 122, 255, 0.1); padding: 8px 14px; border-radius: 10px; flex-shrink: 0;
         }
         .dark-theme .lesson-room { background: rgba(10, 132, 255, 0.2); }
         
-        /* Homework Block */
         .lesson-homework {
-            margin-top: 10px;
-            padding: 10px 12px;
-            background: var(--hw-bg);
-            border: 1.5px dashed var(--hw-border);
-            border-radius: 10px;
-            font-size: 14px;
-            cursor: pointer;
+            margin-top: 10px; padding: 10px 12px; background: var(--hw-bg);
+            border: 1.5px dashed var(--hw-border); border-radius: 10px; font-size: 14px; cursor: pointer;
         }
         .lesson-homework:active { transform: scale(0.98); }
         .lesson-homework.completed .hw-text { text-decoration: line-through; opacity: 0.6; }
-        
-        .hw-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 6px;
-        }
+        .hw-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
         .hw-label { font-size: 11px; color: var(--hw-border); font-weight: 700; text-transform: uppercase; }
         .hw-deadline { font-size: 12px; color: var(--text-secondary); font-weight: 500; }
         .hw-deadline.urgent { color: var(--danger); font-weight: 600; }
-        
         .hw-content { display: flex; align-items: flex-start; gap: 10px; }
         .hw-checkbox {
-            width: 22px;
-            height: 22px;
-            border: 2px solid var(--hw-border);
-            border-radius: 50%;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
+            width: 22px; height: 22px; border: 2px solid var(--hw-border); border-radius: 50%;
+            cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
         }
         .hw-checkbox.checked { background: var(--success); border-color: var(--success); }
         .hw-checkbox.checked::after { content: '✓'; color: white; font-size: 13px; font-weight: bold; }
         .hw-text { flex: 1; line-height: 1.4; }
         
-        /* Double Lessons */
         .lesson-double { padding: 14px 16px; border-bottom: 0.5px solid var(--border); }
         .lesson-double:last-child { border-bottom: none; }
-        .lesson-double.current {
-            background: var(--current-lesson);
-            border-left: 3px solid var(--current-border);
-            padding-left: 13px;
-        }
-        .lesson-double-time {
-            font-size: 13px;
-            color: var(--accent);
-            font-weight: 600;
-            margin-bottom: 10px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
+        .lesson-double.current { background: var(--current-lesson); border-left: 3px solid var(--current-border); padding-left: 13px; }
+        .lesson-double-time { font-size: 13px; color: var(--accent); font-weight: 600; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
         .lesson-double-items { display: flex; flex-direction: column; gap: 10px; }
-        .lesson-double-item {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            padding: 12px 14px;
-            background: var(--inactive-bg);
-            border-radius: 12px;
-        }
+        .lesson-double-item { padding: 12px 14px; background: var(--inactive-bg); border-radius: 12px; }
         .lesson-double-item.num-item { background: var(--numerator-bg); border: 1px solid var(--numerator); }
         .lesson-double-item.den-item { background: var(--denominator-bg); border: 1px solid var(--denominator); }
         .lesson-double-item.inactive-item { opacity: 0.4; }
         .lesson-double-item.skipped { background: var(--disabled-bg); opacity: 0.6; }
         .lesson-double-item.skipped .lesson-name { text-decoration: line-through; }
-        
-        .lesson-double-item-main {
-            display: flex;
-            align-items: flex-start;
-            justify-content: space-between;
-            gap: 12px;
-        }
+        .lesson-double-item-main { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
         .lesson-double-item .lesson-name { font-size: 16px; }
         .lesson-double-item .lesson-teacher { font-size: 13px; }
         .lesson-double-item .lesson-room { font-size: 14px; padding: 6px 12px; }
@@ -353,116 +174,61 @@
         .day-header:first-of-type { margin-top: 0; }
         
         .expand-hint { text-align: center; font-size: 13px; color: var(--text-secondary); margin-top: 20px; }
-        
         .no-lessons { text-align: center; padding: 50px 20px; color: var(--text-secondary); font-size: 17px; }
         .no-lessons-emoji { font-size: 56px; margin-bottom: 14px; }
         
-        /* HW Form */
-        .hw-form-mini {
-            background: var(--card-bg);
-            border-radius: 16px;
-            padding: 16px;
-            margin-top: 28px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
-        }
+        .hw-form-mini { background: var(--card-bg); border-radius: 16px; padding: 16px; margin-top: 28px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
         .hw-form-mini-title { font-size: 18px; font-weight: 700; margin-bottom: 14px; }
         .hw-form-mini-row { display: flex; gap: 10px; }
         .hw-mini-input {
-            flex: 1;
-            padding: 14px 16px;
-            border: 1.5px solid var(--border);
-            border-radius: 12px;
-            font-size: 16px;
-            background: var(--bg);
-            color: var(--text-primary);
-            font-family: inherit;
+            flex: 1; padding: 14px 16px; border: 1.5px solid var(--border); border-radius: 12px;
+            font-size: 16px; background: var(--bg); color: var(--text-primary); font-family: inherit;
         }
         .hw-mini-input:focus { outline: none; border-color: var(--accent); }
         .hw-mini-input.error { border-color: var(--danger); }
         .hw-mini-btn {
-            padding: 14px 20px;
-            background: var(--accent);
-            color: white;
-            border: none;
-            border-radius: 12px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
+            padding: 14px 20px; background: var(--accent); color: white; border: none;
+            border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer;
         }
         .hw-mini-btn:active { opacity: 0.8; }
         
-        /* Modals */
         .modal-overlay {
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0, 0, 0, 0.5);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-            opacity: 0;
-            visibility: hidden;
-            transition: all 0.3s;
-            padding: 20px;
+            position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: flex;
+            align-items: center; justify-content: center; z-index: 1000;
+            opacity: 0; visibility: hidden; transition: all 0.3s; padding: 20px;
         }
         .modal-overlay.active { opacity: 1; visibility: visible; }
-        
         .modal {
-            background: var(--card-bg);
-            border-radius: 20px;
-            width: 100%;
-            max-width: 380px;
-            max-height: 85vh;
-            overflow-y: auto;
-            padding: 24px;
-            transform: scale(0.9);
-            transition: transform 0.3s;
+            background: var(--card-bg); border-radius: 20px; width: 100%; max-width: 380px;
+            max-height: 85vh; overflow-y: auto; padding: 24px; transform: scale(0.9); transition: transform 0.3s;
         }
         .modal-overlay.active .modal { transform: scale(1); }
-        
         .modal-title { font-size: 20px; font-weight: 700; text-align: center; margin-bottom: 20px; }
         .modal-section { margin-bottom: 20px; }
         .modal-label { font-size: 13px; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; margin-bottom: 10px; display: block; }
         
-        .modal-select, .modal-input {
-            width: 100%;
-            padding: 14px 16px;
-            border: 1.5px solid var(--border);
-            border-radius: 12px;
-            font-size: 16px;
-            background: var(--bg);
-            color: var(--text-primary);
-            font-family: inherit;
+        .modal-select, .modal-input, .modal-textarea {
+            width: 100%; padding: 14px 16px; border: 1.5px solid var(--border); border-radius: 12px;
+            font-size: 16px; background: var(--bg); color: var(--text-primary); font-family: inherit;
         }
+        .modal-textarea { min-height: 80px; resize: vertical; }
         .modal-select {
             -webkit-appearance: none;
             background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%238e8e93' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10l-5 5z'/%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: right 14px center;
-            padding-right: 40px;
+            background-repeat: no-repeat; background-position: right 14px center; padding-right: 40px;
         }
-        .modal-select:focus, .modal-input:focus { outline: none; border-color: var(--accent); }
+        .modal-select:focus, .modal-input:focus, .modal-textarea:focus { outline: none; border-color: var(--accent); }
         .modal-select.error, .modal-input.error { border-color: var(--danger); }
         
         .date-options { display: flex; flex-direction: column; gap: 8px; }
         .date-option {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 14px 16px;
-            background: var(--inactive-bg);
-            border-radius: 12px;
-            cursor: pointer;
-            border: 2px solid transparent;
+            display: flex; align-items: center; gap: 12px; padding: 14px 16px;
+            background: var(--inactive-bg); border-radius: 12px; cursor: pointer; border: 2px solid transparent;
         }
         .date-option.selected { border-color: var(--accent); background: rgba(0, 122, 255, 0.1); }
         .date-option-radio {
-            width: 22px; height: 22px;
-            border: 2px solid var(--text-secondary);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            width: 22px; height: 22px; border: 2px solid var(--text-secondary);
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
         }
         .date-option.selected .date-option-radio { border-color: var(--accent); background: var(--accent); }
         .date-option.selected .date-option-radio::after { content: ''; width: 8px; height: 8px; background: white; border-radius: 50%; }
@@ -470,13 +236,8 @@
         
         .modal-buttons { display: flex; gap: 12px; }
         .modal-btn {
-            flex: 1;
-            padding: 14px;
-            border: none;
-            border-radius: 12px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
+            flex: 1; padding: 14px; border: none; border-radius: 12px;
+            font-size: 16px; font-weight: 600; cursor: pointer;
         }
         .modal-btn:active { opacity: 0.8; }
         .modal-btn.cancel { background: var(--inactive-bg); color: var(--text-primary); }
@@ -484,32 +245,20 @@
         .modal-btn.danger { background: var(--danger); color: white; }
         .modal-btn:disabled { opacity: 0.5; cursor: not-allowed; }
         
-        /* Calendar */
-        .calendar { background: var(--card-bg); border-radius: 16px; padding: 16px; margin-top: 12px; }
+        .calendar { background: var(--inactive-bg); border-radius: 16px; padding: 16px; margin-top: 12px; }
         .calendar-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
         .calendar-title { font-size: 17px; font-weight: 600; }
         .calendar-nav { display: flex; gap: 8px; }
         .calendar-nav-btn {
-            width: 32px; height: 32px;
-            border: none;
-            background: var(--inactive-bg);
-            border-radius: 8px;
-            cursor: pointer;
-            color: var(--text-primary);
-            font-size: 16px;
+            width: 32px; height: 32px; border: none; background: var(--card-bg);
+            border-radius: 8px; cursor: pointer; color: var(--text-primary); font-size: 16px;
         }
         .calendar-weekdays { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin-bottom: 8px; }
         .calendar-weekday { text-align: center; font-size: 12px; font-weight: 600; color: var(--text-secondary); padding: 8px 0; }
         .calendar-days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
         .calendar-day {
-            aspect-ratio: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 15px;
-            font-weight: 500;
-            border-radius: 50%;
-            cursor: pointer;
+            aspect-ratio: 1; display: flex; align-items: center; justify-content: center;
+            font-size: 15px; font-weight: 500; border-radius: 50%; cursor: pointer; background: var(--card-bg);
         }
         .calendar-day.other-month { opacity: 0.3; }
         .calendar-day.today { background: var(--accent); color: white; }
@@ -517,99 +266,62 @@
         .calendar-day.selected { background: var(--accent); color: white; box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.3); }
         .calendar-day.disabled { opacity: 0.3; cursor: not-allowed; }
         
-        /* Settings */
         .settings-tabs { display: flex; gap: 8px; margin-bottom: 20px; }
         .settings-tab {
-            flex: 1;
-            padding: 10px;
-            border: none;
-            border-radius: 10px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            background: var(--inactive-bg);
-            color: var(--text-secondary);
+            flex: 1; padding: 10px; border: none; border-radius: 10px; font-size: 14px;
+            font-weight: 600; cursor: pointer; background: var(--inactive-bg); color: var(--text-secondary);
         }
         .settings-tab.active { background: var(--accent); color: white; }
         
-        .settings-list { display: flex; flex-direction: column; gap: 8px; max-height: 400px; overflow-y: auto; }
+        .settings-list { display: flex; flex-direction: column; gap: 8px; max-height: 50vh; overflow-y: auto; }
+        .settings-day-header { font-size: 13px; font-weight: 700; color: var(--accent); padding: 12px 0 6px; border-bottom: 1px solid var(--border); }
         .settings-item {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 12px 14px;
-            background: var(--inactive-bg);
-            border-radius: 12px;
-            gap: 12px;
+            display: flex; align-items: center; padding: 12px 14px;
+            background: var(--inactive-bg); border-radius: 12px; gap: 12px;
         }
         .settings-item.skipped { background: var(--disabled-bg); }
         .settings-item-info { flex: 1; min-width: 0; }
-        .settings-item-name { font-size: 14px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .settings-item-name { font-size: 14px; font-weight: 500; }
         .settings-item.skipped .settings-item-name { text-decoration: line-through; opacity: 0.6; }
         .settings-item-sub { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
-        .settings-item-actions { display: flex; gap: 8px; }
-        
+        .settings-item-actions { display: flex; gap: 6px; }
         .settings-action-btn {
-            width: 36px; height: 36px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 16px;
+            width: 34px; height: 34px; border: none; border-radius: 8px; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; font-size: 16px;
         }
         .settings-action-btn.skip { background: rgba(255, 149, 0, 0.15); color: var(--hw-border); }
         .settings-action-btn.skip.active { background: var(--hw-border); color: white; }
         .settings-action-btn.edit { background: rgba(0, 122, 255, 0.15); color: var(--accent); }
+        .settings-action-btn.move { background: rgba(52, 199, 89, 0.15); color: var(--success); }
         
-        /* Edit Lesson Modal */
-        .edit-form { display: flex; flex-direction: column; gap: 16px; }
-        .edit-field label { display: block; font-size: 13px; font-weight: 600; color: var(--text-secondary); margin-bottom: 8px; }
-        .edit-field input {
-            width: 100%;
-            padding: 12px 14px;
-            border: 1.5px solid var(--border);
-            border-radius: 10px;
-            font-size: 15px;
-            background: var(--bg);
-            color: var(--text-primary);
-            font-family: inherit;
+        .time-slots { display: flex; flex-direction: column; gap: 8px; }
+        .time-slot {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 12px 14px; background: var(--inactive-bg); border-radius: 10px; cursor: pointer;
+            border: 2px solid transparent;
         }
-        .edit-field input:focus { outline: none; border-color: var(--accent); }
+        .time-slot.selected { border-color: var(--accent); background: rgba(0, 122, 255, 0.1); }
+        .time-slot.occupied { opacity: 0.4; cursor: not-allowed; background: var(--disabled-bg); }
+        .time-slot-info { display: flex; flex-direction: column; }
+        .time-slot-time { font-size: 15px; font-weight: 600; }
+        .time-slot-label { font-size: 12px; color: var(--text-secondary); }
+        .time-slot-status { font-size: 12px; font-weight: 600; }
+        .time-slot-status.occupied { color: var(--danger); }
+        .time-slot-status.current { color: var(--success); }
         
-        /* Archive */
         .archive-section { display: none; }
         .archive-section.active { display: block; }
         .archive-tabs { display: flex; gap: 8px; margin-bottom: 20px; }
         .archive-tab {
-            flex: 1;
-            padding: 12px;
-            border: none;
-            border-radius: 12px;
-            font-size: 15px;
-            font-weight: 600;
-            cursor: pointer;
-            background: var(--inactive-bg);
-            color: var(--text-secondary);
+            flex: 1; padding: 12px; border: none; border-radius: 12px; font-size: 15px;
+            font-weight: 600; cursor: pointer; background: var(--inactive-bg); color: var(--text-secondary);
         }
         .archive-tab.active { background: var(--accent); color: white; }
-        
         .archive-actions-bar { display: flex; justify-content: flex-end; margin-bottom: 16px; }
         .delete-all-btn {
-            padding: 10px 16px;
-            background: var(--danger);
-            color: white;
-            border: none;
-            border-radius: 10px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 6px;
+            padding: 10px 16px; background: var(--danger); color: white; border: none;
+            border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer;
         }
-        
         .archive-content { display: none; }
         .archive-content.active { display: block; }
         .archive-card { background: var(--card-bg); border-radius: 16px; padding: 16px; margin-bottom: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
@@ -625,15 +337,13 @@
         .archive-text { font-size: 14px; color: var(--text-secondary); margin-top: 4px; }
         .archive-deadline { font-size: 12px; color: var(--text-secondary); margin-top: 4px; }
         .archive-deadline.urgent { color: var(--danger); }
-        .archive-actions { display: flex; gap: 8px; }
-        .archive-action-btn { width: 32px; height: 32px; border-radius: 8px; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 14px; }
-        .archive-action-btn.delete { background: rgba(255, 59, 48, 0.15); color: var(--danger); }
-        
+        .archive-action-btn { width: 32px; height: 32px; border-radius: 8px; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px; background: rgba(255, 59, 48, 0.15); color: var(--danger); }
         .empty-archive { text-align: center; padding: 50px 20px; color: var(--text-secondary); }
         .empty-archive-emoji { font-size: 56px; margin-bottom: 14px; }
         
-        /* HW Detail */
-        .hw-detail-subject { font-size: 14px; color: var(--accent); font-weight: 600; margin-bottom: 8px; }
+        .hw-detail-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+        .hw-detail-subject { font-size: 14px; color: var(--accent); font-weight: 600; }
+        .hw-detail-edit { background: var(--accent); border: none; color: white; font-size: 14px; font-weight: 600; cursor: pointer; padding: 8px 16px; border-radius: 8px; }
         .hw-detail-text { font-size: 18px; font-weight: 600; line-height: 1.4; margin-bottom: 16px; }
         .hw-detail-info { display: flex; flex-direction: column; gap: 12px; padding: 16px; background: var(--inactive-bg); border-radius: 12px; margin-bottom: 20px; }
         .hw-detail-row { display: flex; justify-content: space-between; align-items: center; }
@@ -642,47 +352,24 @@
         .hw-detail-value.urgent { color: var(--danger); }
         .hw-detail-value.completed { color: var(--success); }
         
-        /* Alert */
         .custom-alert {
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0, 0, 0, 0.5);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 2000;
-            opacity: 0;
-            visibility: hidden;
-            transition: all 0.3s;
-            padding: 20px;
+            position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: flex;
+            align-items: center; justify-content: center; z-index: 2000;
+            opacity: 0; visibility: hidden; transition: all 0.3s; padding: 20px;
         }
         .custom-alert.active { opacity: 1; visibility: visible; }
         .alert-box {
-            background: var(--card-bg);
-            border-radius: 16px;
-            width: 100%;
-            max-width: 300px;
-            padding: 24px;
-            text-align: center;
-            transform: scale(0.9);
-            transition: transform 0.3s;
+            background: var(--card-bg); border-radius: 16px; width: 100%; max-width: 300px;
+            padding: 24px; text-align: center; transform: scale(0.9); transition: transform 0.3s;
         }
         .custom-alert.active .alert-box { transform: scale(1); }
         .alert-icon { font-size: 48px; margin-bottom: 16px; }
         .alert-title { font-size: 18px; font-weight: 700; margin-bottom: 10px; }
         .alert-message { font-size: 15px; color: var(--text-secondary); margin-bottom: 20px; line-height: 1.4; }
         .alert-input {
-            width: 100%;
-            padding: 12px;
-            border: 1.5px solid var(--border);
-            border-radius: 10px;
-            font-size: 16px;
-            text-align: center;
-            font-weight: 600;
-            background: var(--bg);
-            color: var(--text-primary);
-            margin-bottom: 16px;
-            font-family: inherit;
+            width: 100%; padding: 12px; border: 1.5px solid var(--border); border-radius: 10px;
+            font-size: 16px; text-align: center; font-weight: 600; background: var(--bg);
+            color: var(--text-primary); margin-bottom: 16px; font-family: inherit;
         }
         .alert-input:focus { outline: none; border-color: var(--accent); }
         .alert-buttons { display: flex; gap: 12px; }
@@ -698,28 +385,16 @@
 <body class="today-view">
     <div class="container">
         <div class="top-bar">
-            <button class="back-btn" onclick="showToday()">
-                <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 9H3m0 0l5 5M3 9l5-5"/></svg>
-                Назад
-            </button>
+            <button class="btn" onclick="showToday()">← Назад</button>
             <div class="top-bar-right">
-                <button class="settings-btn" onclick="openSettings()">
-                    <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
-                </button>
-                <button class="archive-btn" onclick="toggleArchive()">
-                    <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 8v13H3V8M1 3h22v5H1zM10 12h4"/></svg>
-                    <span id="archiveBtnText">Архив</span>
-                </button>
-                <div class="theme-toggle">
-                    <div class="toggle-switch" id="themeToggle" onclick="toggleTheme()">
-                        <div class="toggle-knob"></div>
-                    </div>
-                </div>
+                <button class="btn gray" onclick="openSettings()">⚙️</button>
+                <button class="btn orange" onclick="toggleArchive()"><span id="archiveBtnText">📁 Архив</span></button>
+                <div class="toggle-switch" id="themeToggle" onclick="toggleTheme()"><div class="toggle-knob"></div></div>
             </div>
         </div>
         
         <div class="header">
-            <div class="day-title" id="dayTitle">Загрузка...</div>
+            <div class="day-title" id="dayTitle"></div>
             <div class="date-info" id="dateInfo"></div>
             <div class="week-type-container">
                 <div class="week-type" id="weekType">
@@ -737,7 +412,7 @@
         
         <div id="hwFormSection">
             <div class="hw-form-mini">
-                <div class="hw-form-mini-title">Добавить ДЗ</div>
+                <div class="hw-form-mini-title">📝 Добавить ДЗ</div>
                 <div class="hw-form-mini-row">
                     <input type="text" class="hw-mini-input" id="hwText" placeholder="Введите задание...">
                     <button class="hw-mini-btn" onclick="openHwModal()">Далее</button>
@@ -745,1211 +420,572 @@
             </div>
         </div>
     </div>
-    
-    <!-- HW Modal -->
-    <div class="modal-overlay" id="hwModal">
-        <div class="modal">
-            <div class="modal-title">Новое задание</div>
-            <div class="modal-section">
-                <label class="modal-label">Предмет</label>
-                <select class="modal-select" id="hwSubject" onchange="onSubjectChange()">
-                    <option value="">Выберите предмет...</option>
-                </select>
+
+    <div class="modal-overlay" id="hwModal"><div class="modal">
+        <div class="modal-title">Новое задание</div>
+        <div class="modal-section"><label class="modal-label">Предмет</label><select class="modal-select" id="hwSubject" onchange="onSubjectChange()"></select></div>
+        <div class="modal-section"><label class="modal-label">Срок сдачи</label>
+            <div class="date-options">
+                <div class="date-option selected" data-type="next" onclick="selectDateOption(this)"><div class="date-option-radio"></div><div class="date-option-text">На следующую пару</div></div>
+                <div class="date-option" data-type="custom" onclick="selectDateOption(this)"><div class="date-option-radio"></div><div class="date-option-text">Выбрать дату</div></div>
             </div>
-            <div class="modal-section">
-                <label class="modal-label">Срок сдачи</label>
-                <div class="date-options">
-                    <div class="date-option selected" data-type="next" onclick="selectDateOption(this)">
-                        <div class="date-option-radio"></div>
-                        <div class="date-option-text">На следующую пару</div>
-                    </div>
-                    <div class="date-option" data-type="custom" onclick="selectDateOption(this)">
-                        <div class="date-option-radio"></div>
-                        <div class="date-option-text">Выбрать дату</div>
-                    </div>
-                </div>
-                <div id="calendarContainer" class="hidden"></div>
-            </div>
-            <div class="modal-buttons">
-                <button class="modal-btn cancel" onclick="closeHwModal()">Отмена</button>
-                <button class="modal-btn confirm" onclick="confirmAddHomework()">Добавить</button>
-            </div>
+            <div id="calendarContainer" class="hidden"></div>
         </div>
-    </div>
-    
-    <!-- HW Detail Modal -->
-    <div class="modal-overlay" id="hwDetailModal">
-        <div class="modal">
-            <div class="modal-title">Домашнее задание</div>
-            <div class="hw-detail-subject" id="hwDetailSubject"></div>
-            <div class="hw-detail-text" id="hwDetailText"></div>
-            <div class="hw-detail-info">
-                <div class="hw-detail-row">
-                    <span class="hw-detail-label">Дедлайн</span>
-                    <span class="hw-detail-value" id="hwDetailDeadline"></span>
-                </div>
-                <div class="hw-detail-row">
-                    <span class="hw-detail-label">Осталось</span>
-                    <span class="hw-detail-value" id="hwDetailDays"></span>
-                </div>
-                <div class="hw-detail-row">
-                    <span class="hw-detail-label">Статус</span>
-                    <span class="hw-detail-value" id="hwDetailStatus"></span>
-                </div>
-            </div>
-            <div class="modal-buttons">
-                <button class="modal-btn cancel" onclick="closeHwDetailModal()">Закрыть</button>
-            </div>
+        <div class="modal-buttons"><button class="modal-btn cancel" onclick="closeModal('hwModal')">Отмена</button><button class="modal-btn confirm" onclick="confirmAddHomework()">Добавить</button></div>
+    </div></div>
+
+    <div class="modal-overlay" id="hwDetailModal"><div class="modal">
+        <div class="modal-title">Домашнее задание</div>
+        <div class="hw-detail-header"><div class="hw-detail-subject" id="hwDetailSubject"></div><button class="hw-detail-edit" onclick="openEditHwModal()">✏️ Изменить</button></div>
+        <div class="hw-detail-text" id="hwDetailText"></div>
+        <div class="hw-detail-info">
+            <div class="hw-detail-row"><span class="hw-detail-label">Дедлайн</span><span class="hw-detail-value" id="hwDetailDeadline"></span></div>
+            <div class="hw-detail-row"><span class="hw-detail-label">Осталось</span><span class="hw-detail-value" id="hwDetailDays"></span></div>
+            <div class="hw-detail-row"><span class="hw-detail-label">Статус</span><span class="hw-detail-value" id="hwDetailStatus"></span></div>
         </div>
-    </div>
+        <div class="modal-buttons"><button class="modal-btn cancel" onclick="closeModal('hwDetailModal')">Закрыть</button></div>
+    </div></div>
+
+    <div class="modal-overlay" id="editHwModal"><div class="modal">
+        <div class="modal-title">Редактировать ДЗ</div>
+        <div class="modal-section"><label class="modal-label">Текст</label><textarea class="modal-textarea" id="editHwText"></textarea></div>
+        <div class="modal-section"><label class="modal-label">Предмет</label><select class="modal-select" id="editHwSubject"></select></div>
+        <div class="modal-section"><label class="modal-label">Дедлайн</label><input type="date" class="modal-input" id="editHwDate"></div>
+        <div class="modal-buttons"><button class="modal-btn cancel" onclick="closeModal('editHwModal')">Отмена</button><button class="modal-btn confirm" onclick="saveEditedHw()">Сохранить</button></div>
+    </div></div>
+
+    <div class="modal-overlay" id="settingsModal"><div class="modal">
+        <div class="modal-title">⚙️ Настройки</div>
+        <div class="settings-tabs"><button class="settings-tab active" onclick="switchSettingsTab('lessons')">Пары</button><button class="settings-tab" onclick="switchSettingsTab('groups')">Группы</button></div>
+        <div id="settingsContent"></div>
+        <div class="modal-buttons" style="margin-top:20px"><button class="modal-btn confirm" onclick="closeSettings()">Готово</button></div>
+    </div></div>
+
+    <div class="modal-overlay" id="editLessonModal"><div class="modal">
+        <div class="modal-title">✏️ Редактировать</div>
+        <div class="modal-section"><label class="modal-label">Название</label><input type="text" class="modal-input" id="editLessonName"></div>
+        <div class="modal-section"><label class="modal-label">Преподаватель</label><input type="text" class="modal-input" id="editLessonTeacher"></div>
+        <div class="modal-section"><label class="modal-label">Аудитория</label><input type="text" class="modal-input" id="editLessonRoom"></div>
+        <div class="modal-buttons"><button class="modal-btn cancel" onclick="closeModal('editLessonModal')">Отмена</button><button class="modal-btn confirm" onclick="saveLesson()">Сохранить</button></div>
+    </div></div>
+
+    <div class="modal-overlay" id="moveLessonModal"><div class="modal">
+        <div class="modal-title">↕️ Переместить</div>
+        <div class="modal-section"><label class="modal-label">Выберите время</label><div class="time-slots" id="timeSlots"></div></div>
+        <div class="modal-buttons"><button class="modal-btn cancel" onclick="closeModal('moveLessonModal')">Отмена</button><button class="modal-btn confirm" onclick="confirmMoveLesson()">Переместить</button></div>
+    </div></div>
+
+    <div class="custom-alert" id="deleteAllAlert"><div class="alert-box">
+        <div class="alert-icon">🗑️</div><div class="alert-title">Удалить всё?</div><div class="alert-message">Введите DELETE</div>
+        <input type="text" class="alert-input" id="deleteConfirmInput" oninput="checkDeleteInput()">
+        <div class="alert-buttons"><button class="alert-btn secondary" onclick="hideDeleteAllAlert()">Отмена</button><button class="alert-btn danger" id="confirmDeleteAllBtn" disabled onclick="confirmDeleteAll()">Удалить</button></div>
+    </div></div>
+
+    <div class="custom-alert" id="customAlert"><div class="alert-box">
+        <div class="alert-icon" id="alertIcon"></div><div class="alert-title" id="alertTitle"></div><div class="alert-message" id="alertMessage"></div>
+        <div class="alert-buttons" id="alertButtons"></div>
+    </div></div>
+<script>
+const TIME_SLOTS = [
+    { id: 1, time: '07:30-09:00', label: '1 пара' },
+    { id: 2, time: '10:00-11:30', label: '2 пара' },
+    { id: 3, time: '11:40-13:10', label: '3 пара' },
+    { id: 4, time: '13:30-15:00', label: '4 пара' },
+    { id: 5, time: '15:10-16:40', label: '5 пара' },
+    { id: 6, time: '16:50-18:20', label: '6 пара' },
+    { id: 7, time: '18:30-20:00', label: '7 пара' }
+];
+
+const dayNames = ['Воскресенье', 'Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота'];
+const months = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'];
+const monthNames = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
+
+const defaultSchedule = {
+    1: [
+        { id: '1-1', time: '07:30-09:00', name: 'Статистика', type: 'лек', teacher: 'Омурканов Ы.К.', room: '' },
+        { id: '1-2', time: '10:00-11:30', name: 'Иностранный язык', type: 'пр', teacher: 'Любимова Н.А.', room: '4/201' },
+        { id: '1-3', time: '11:40-13:10', name: 'Микроэкономика', type: 'лек', teacher: 'Кумсков Г.В.', room: '3/204' },
+        { id: '1-4', time: '13:30-15:00', name: 'История Кыргызстана', type: 'пр', teacher: 'Батырбаева Ш.Д.', room: '3/205' },
+        { id: '1-5', time: '15:10-16:40', name: 'Микроэкономика', type: 'пр', teacher: 'Кумсков Г.В.', room: '3/204' }
+    ],
+    2: [
+        { id: '2-1', time: '07:30-09:00', name: 'Физкультура', type: 'пр', teacher: '', room: '' },
+        { id: '2-2', time: '10:00-11:30', name: 'Психология общения', type: 'лек', teacher: 'Арунова А.А.', room: '3/207', week: 'num' },
+        { id: '2-3', time: '11:40-13:10', name: 'Психология общения', type: 'пр', teacher: 'Арунова А.А.', room: '3/204', week: 'num' },
+        { id: '2-4', time: '11:40-13:10', name: 'ИТ в проф. деятельности', type: 'пр', teacher: 'Сейталиева Н.А.', room: '3/204', week: 'den' }
+    ],
+    3: [
+        { id: '3-1', time: '07:30-09:00', name: 'История Кыргызстана', type: 'лек', teacher: 'Марченко Л.Ю.', room: '' },
+        { id: '3-2', time: '10:00-11:30', name: 'Кыргызский язык', type: 'пр', teacher: 'Рыспаева Г.С.', room: '11/109', kgGroup: 'cont' },
+        { id: '3-3', time: '10:00-11:30', name: 'Кыргызский язык', type: '', teacher: '', room: '', kgGroup: 'beg' }
+    ],
+    4: [
+        { id: '4-1', time: '10:00-11:30', name: 'Иностранный язык', type: 'пр', teacher: 'Любимова Н.А.', room: '3/201' },
+        { id: '4-2', time: '11:40-13:10', name: 'Статистика', type: 'пр', teacher: 'Омурканов Ы.К.', room: '3/205' },
+        { id: '4-3', time: '13:30-15:00', name: 'ИТ в проф. деятельности', type: 'пр', teacher: 'Сейталиева Н.А.', room: '11/213', week: 'num' },
+        { id: '4-4', time: '13:30-15:00', name: 'ИТ в проф. деятельности', type: 'пр', teacher: 'Сейталиева Н.А.', room: '11/213', week: 'den' },
+        { id: '4-5', time: '15:10-16:40', name: 'ИТ в проф. деятельности', type: 'пр', teacher: 'Сейталиева Н.А.', room: '11/213', week: 'num' },
+        { id: '4-6', time: '15:10-16:40', name: 'ИТ в проф. деятельности', type: 'пр', teacher: 'Сейталиева Н.А.', room: '11/213', week: 'den' }
+    ],
+    5: [
+        { id: '5-1', time: '07:30-09:00', name: 'Физкультура', type: 'пр', teacher: '', room: '' },
+        { id: '5-2', time: '10:00-11:30', name: 'Кыргызский язык', type: 'пр', teacher: 'Рыспаева Г.С.', room: '', kgGroup: 'cont' },
+        { id: '5-3', time: '10:00-11:30', name: 'Кыргызский язык', type: '', teacher: '', room: '', kgGroup: 'beg' },
+        { id: '5-4', time: '11:40-13:10', name: 'Экономическая теория', type: 'пр', teacher: 'Крыжанова Л.С.', room: '3/204' },
+        { id: '5-5', time: '13:30-15:00', name: 'Русский язык', type: 'пр', teacher: 'Дугина О.В.', room: '3/208' }
+    ],
+    6: [
+        { id: '6-1', time: '10:00-11:30', name: 'Высшая математика', type: 'пр', teacher: 'Байзаков А.Б.', room: '3/209' },
+        { id: '6-2', time: '11:40-13:10', name: 'Высшая математика', type: 'лек', teacher: 'Байзаков А.Б.', room: '3/209' },
+        { id: '6-3', time: '13:30-15:00', name: 'Кыргызский язык', type: 'пр', teacher: 'Рыспаева Г.С.', room: '11/106', kgGroup: 'cont' }
+    ],
+    0: []
+};
+
+let schedule = JSON.parse(localStorage.getItem('customSchedule')) || JSON.parse(JSON.stringify(defaultSchedule));
+let skippedLessons = JSON.parse(localStorage.getItem('skippedLessons') || '{}');
+let lessonEdits = JSON.parse(localStorage.getItem('lessonEdits') || '{}');
+let groupSettings = JSON.parse(localStorage.getItem('groupSettings') || '{}');
+let homeworks = JSON.parse(localStorage.getItem('homeworks') || '[]');
+let archivedHomeworks = JSON.parse(localStorage.getItem('archivedHomeworks') || '[]');
+
+let currentWeekType = 'num', currentWeekNumber = 1, isFullView = false, isArchiveView = false, isDarkTheme = false, showingTomorrow = false;
+let currentArchiveTab = 'upcoming', currentSettingsTab = 'lessons', pendingHwText = '', selectedDateType = 'next', selectedCustomDate = null;
+let calendarMonth = new Date().getMonth(), calendarYear = new Date().getFullYear();
+let editingLessonId = null, movingLessonId = null, movingLessonDay = null, currentHwId = null, selectedTimeSlot = null;
+
+function save() {
+    localStorage.setItem('customSchedule', JSON.stringify(schedule));
+    localStorage.setItem('skippedLessons', JSON.stringify(skippedLessons));
+    localStorage.setItem('lessonEdits', JSON.stringify(lessonEdits));
+    localStorage.setItem('groupSettings', JSON.stringify(groupSettings));
+    localStorage.setItem('homeworks', JSON.stringify(homeworks));
+    localStorage.setItem('archivedHomeworks', JSON.stringify(archivedHomeworks));
+}
+
+function getAcademicWeekInfo(date) {
+    const start = new Date(2025, 8, 1);
+    if (date < start) return { weekNumber: 0, type: 'num' };
+    const diff = Math.floor((date - start) / (1000 * 60 * 60 * 24));
+    const weekNumber = Math.floor(diff / 7) + 1;
+    return { weekNumber, type: weekNumber % 2 === 1 ? 'num' : 'den' };
+}
+
+function parseTime(t) { const [s, e] = t.split('-'); const [sH, sM] = s.split(':').map(Number); const [eH, eM] = e.split(':').map(Number); return { start: sH * 60 + sM, end: eH * 60 + eM }; }
+
+function isCurrentLesson(time, date) {
+    const now = new Date(), today = new Date(); today.setHours(0,0,0,0);
+    const check = new Date(date); check.setHours(0,0,0,0);
+    if (today.getTime() !== check.getTime()) return false;
+    const mins = now.getHours() * 60 + now.getMinutes();
+    const { start, end } = parseTime(time);
+    return mins >= start && mins <= end;
+}
+
+function getDaysUntil(dateStr) { const today = new Date(); today.setHours(0,0,0,0); const target = new Date(dateStr); target.setHours(0,0,0,0); return Math.ceil((target - today) / (1000 * 60 * 60 * 24)); }
+
+function formatDaysLeft(days) {
+    if (days < 0) return { text: 'просрочено', urgent: true };
+    if (days === 0) return { text: 'сегодня', urgent: true };
+    if (days === 1) return { text: 'завтра', urgent: true };
+    if (days <= 3) return { text: days + ' дня', urgent: true };
+    return { text: days + ' дн.', urgent: false };
+}
+
+function formatFullDate(dateStr) { const d = new Date(dateStr); return d.getDate() + ' ' + months[d.getMonth()] + ' ' + d.getFullYear(); }
+function getLessonData(l) { const e = lessonEdits[l.id] || {}; return { ...l, name: e.name || l.name, teacher: e.teacher !== undefined ? e.teacher : l.teacher, room: e.room !== undefined ? e.room : l.room, time: e.time || l.time }; }
+function isLessonSkipped(id) { return skippedLessons[id] === true; }
+function isGroupDisabled(l) { if (l.kgGroup === 'cont' && groupSettings.kyrgyz === 'beg') return true; if (l.kgGroup === 'beg' && groupSettings.kyrgyz === 'cont') return true; return false; }
+function getSubjects() { const s = new Set(); for (let d = 0; d <= 6; d++) (schedule[d] || []).forEach(l => s.add(getLessonData(l).name)); return Array.from(s).sort(); }
+function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+function sortByTime(times) { return times.sort((a, b) => { const [aH, aM] = a.split('-')[0].split(':').map(Number); const [bH, bM] = b.split('-')[0].split(':').map(Number); return (aH * 60 + aM) - (bH * 60 + bM); }); }
+
+function toggleTheme() { isDarkTheme = !isDarkTheme; document.body.classList.toggle('dark-theme', isDarkTheme); document.querySelectorAll('.toggle-switch').forEach(el => el.classList.toggle('active', isDarkTheme)); localStorage.setItem('darkTheme', isDarkTheme); }
+function loadTheme() { isDarkTheme = localStorage.getItem('darkTheme') === 'true'; document.body.classList.toggle('dark-theme', isDarkTheme); document.querySelectorAll('.toggle-switch').forEach(el => el.classList.toggle('active', isDarkTheme)); }
+
+function updateWeekTypeDisplay(date) {
+    const info = getAcademicWeekInfo(date); currentWeekType = info.type; currentWeekNumber = info.weekNumber;
+    document.querySelector('.week-type-dot').className = 'week-type-dot ' + currentWeekType;
+    document.getElementById('weekType').className = 'week-type ' + currentWeekType + '-week';
+    document.getElementById('weekTypeName').textContent = currentWeekType === 'num' ? 'Числитель' : 'Знаменатель';
+    document.getElementById('weekNumber').textContent = currentWeekNumber > 0 ? '(' + currentWeekNumber + ' нед.)' : '';
+}
+
+function toggleTomorrow() { showingTomorrow = !showingTomorrow; document.getElementById('tomorrowToggle').classList.toggle('active', showingTomorrow); document.getElementById('tomorrowToggle').textContent = showingTomorrow ? 'сегодня' : 'завтра'; renderMainSchedule(); }
+function getDisplayDate() { const d = new Date(); if (showingTomorrow) d.setDate(d.getDate() + 1); return d; }
+
+function archiveOldHomeworks() {
+    const today = new Date(); today.setHours(0,0,0,0);
+    const old = homeworks.filter(hw => { const d = new Date(hw.date); d.setHours(0,0,0,0); return d < today; });
+    if (old.length) { archivedHomeworks = [...archivedHomeworks, ...old]; homeworks = homeworks.filter(hw => { const d = new Date(hw.date); d.setHours(0,0,0,0); return d >= today; }); save(); }
+}
+
+function getHomeworksForSubject(name) { return homeworks.filter(hw => hw.subject === name); }
+
+function toggleHomework(id, e) { e.stopPropagation(); const hw = homeworks.find(h => h.id === id); if (hw) { hw.completed = !hw.completed; save(); refreshView(); } }
+
+function openHwDetail(id, e) {
+    e.stopPropagation(); const hw = homeworks.find(h => h.id === id); if (!hw) return;
+    currentHwId = id;
+    document.getElementById('hwDetailSubject').textContent = hw.subject;
+    document.getElementById('hwDetailText').textContent = hw.text;
+    document.getElementById('hwDetailDeadline').textContent = formatFullDate(hw.date);
+    const days = getDaysUntil(hw.date), info = formatDaysLeft(days);
+    document.getElementById('hwDetailDays').textContent = info.text;
+    document.getElementById('hwDetailDays').className = 'hw-detail-value' + (info.urgent ? ' urgent' : '');
+    document.getElementById('hwDetailStatus').textContent = hw.completed ? '✓ Выполнено' : 'В процессе';
+    document.getElementById('hwDetailStatus').className = 'hw-detail-value' + (hw.completed ? ' completed' : '');
+    document.getElementById('hwDetailModal').classList.add('active');
+}
+
+function openEditHwModal() {
+    const hw = homeworks.find(h => h.id === currentHwId); if (!hw) return;
+    closeModal('hwDetailModal');
+    document.getElementById('editHwText').value = hw.text;
+    document.getElementById('editHwSubject').innerHTML = getSubjects().map(s => '<option value="' + s + '"' + (s === hw.subject ? ' selected' : '') + '>' + s + '</option>').join('');
+    document.getElementById('editHwDate').value = hw.date;
+    document.getElementById('editHwModal').classList.add('active');
+}
+
+function saveEditedHw() {
+    const hw = homeworks.find(h => h.id === currentHwId); if (!hw) return;
+    hw.text = document.getElementById('editHwText').value.trim();
+    hw.subject = document.getElementById('editHwSubject').value;
+    hw.date = document.getElementById('editHwDate').value;
+    save(); closeModal('editHwModal'); refreshView();
+}
+
+function renderHomeworkBlock(subjectName) {
+    const hws = getHomeworksForSubject(subjectName); if (!hws.length) return '';
+    return hws.map(hw => {
+        const days = getDaysUntil(hw.date), info = formatDaysLeft(days);
+        return '<div class="lesson-homework ' + (hw.completed ? 'completed' : '') + '" onclick="openHwDetail(\'' + hw.id + '\', event)"><div class="hw-header"><span class="hw-label">📌 ДЗ</span><span class="hw-deadline ' + (info.urgent ? 'urgent' : '') + '">' + info.text + '</span></div><div class="hw-content"><div class="hw-checkbox ' + (hw.completed ? 'checked' : '') + '" onclick="toggleHomework(\'' + hw.id + '\', event)"></div><div class="hw-text">' + hw.text + '</div></div></div>';
+    }).join('');
+}
+
+function openHwModal() {
+    const input = document.getElementById('hwText'), text = input.value.trim();
+    if (!text) { input.classList.add('shake', 'error'); setTimeout(() => input.classList.remove('shake', 'error'), 500); return; }
+    pendingHwText = text;
+    document.getElementById('hwSubject').innerHTML = '<option value="">Выберите...</option>' + getSubjects().map(s => '<option value="' + s + '">' + s + '</option>').join('');
+    selectDateOption(document.querySelector('[data-type="next"]'));
+    document.getElementById('calendarContainer').classList.add('hidden');
+    document.getElementById('hwModal').classList.add('active');
+}
+
+function selectDateOption(el) {
+    document.querySelectorAll('.date-option').forEach(o => o.classList.remove('selected'));
+    el.classList.add('selected'); selectedDateType = el.dataset.type;
+    if (selectedDateType === 'custom') { renderCalendar(); document.getElementById('calendarContainer').classList.remove('hidden'); }
+    else { document.getElementById('calendarContainer').classList.add('hidden'); selectedCustomDate = null; }
+}
+
+function onSubjectChange() { if (selectedDateType === 'custom') renderCalendar(); }
+
+function getNextLessonDate(subjectName) {
+    if (!subjectName) return null; const today = new Date();
+    for (let i = 1; i <= 30; i++) {
+        const check = new Date(today); check.setDate(today.getDate() + i);
+        const weekInfo = getAcademicWeekInfo(check), lessons = schedule[check.getDay()] || [];
+        if (lessons.some(l => getLessonData(l).name === subjectName && !isLessonSkipped(l.id) && (!l.week || l.week === weekInfo.type))) return check;
+    }
+    return null;
+}
+
+function getSubjectDates(subjectName) {
+    if (!subjectName) return []; const dates = [], end = new Date(2027, 5, 30), today = new Date();
+    for (let d = new Date(today); d <= end; d.setDate(d.getDate() + 1)) {
+        const weekInfo = getAcademicWeekInfo(d), lessons = schedule[d.getDay()] || [];
+        if (lessons.some(l => getLessonData(l).name === subjectName && !isLessonSkipped(l.id) && (!l.week || l.week === weekInfo.type))) dates.push(new Date(d));
+    }
+    return dates;
+}
+
+function renderCalendar() {
+    const subject = document.getElementById('hwSubject').value, subjectDates = getSubjectDates(subject);
+    const firstDay = new Date(calendarYear, calendarMonth, 1), lastDay = new Date(calendarYear, calendarMonth + 1, 0);
+    const startDay = firstDay.getDay() || 7, today = new Date(); today.setHours(0,0,0,0);
+    let html = '<div class="calendar"><div class="calendar-header"><div class="calendar-title">' + monthNames[calendarMonth] + ' ' + calendarYear + '</div><div class="calendar-nav"><button class="calendar-nav-btn" onclick="prevMonth()">◀</button><button class="calendar-nav-btn" onclick="nextMonth()">▶</button></div></div><div class="calendar-weekdays">' + ['Пн','Вт','Ср','Чт','Пт','Сб','Вс'].map(d => '<div class="calendar-weekday">' + d + '</div>').join('') + '</div><div class="calendar-days">';
+    for (let i = 1; i < startDay; i++) { const d = new Date(calendarYear, calendarMonth, 1 - (startDay - i)); html += '<div class="calendar-day other-month">' + d.getDate() + '</div>'; }
+    for (let d = 1; d <= lastDay.getDate(); d++) {
+        const date = new Date(calendarYear, calendarMonth, d); date.setHours(0,0,0,0);
+        const isToday = date.getTime() === today.getTime(), isPast = date < today;
+        const hasLesson = subjectDates.some(sd => { sd.setHours(0,0,0,0); return sd.getTime() === date.getTime(); });
+        const isSelected = selectedCustomDate && new Date(selectedCustomDate).setHours(0,0,0,0) === date.getTime();
+        let cls = 'calendar-day'; if (isToday) cls += ' today'; if (hasLesson && !isPast) cls += ' has-lesson'; if (isSelected) cls += ' selected'; if (isPast || !hasLesson) cls += ' disabled';
+        html += '<div class="' + cls + '"' + ((!isPast && hasLesson) ? ' onclick="selectCalendarDate(\'' + date.toISOString() + '\')"' : '') + '>' + d + '</div>';
+    }
+    document.getElementById('calendarContainer').innerHTML = html + '</div></div>';
+}
+
+function prevMonth() { calendarMonth--; if (calendarMonth < 0) { calendarMonth = 11; calendarYear--; } renderCalendar(); }
+function nextMonth() { calendarMonth++; if (calendarMonth > 11) { calendarMonth = 0; calendarYear++; } renderCalendar(); }
+function selectCalendarDate(iso) { selectedCustomDate = iso; renderCalendar(); }
+
+function confirmAddHomework() {
+    const sel = document.getElementById('hwSubject');
+    if (!sel.value) { sel.classList.add('shake', 'error'); setTimeout(() => sel.classList.remove('shake', 'error'), 500); return; }
+    let deadline;
+    if (selectedDateType === 'next') { const next = getNextLessonDate(sel.value); if (!next) { showAlert({ icon: '⚠️', title: 'Ошибка', message: 'Не найдена следующая пара', buttons: [{ text: 'OK', action: 'hideAlert()' }] }); return; } deadline = next.toISOString().split('T')[0]; }
+    else { if (!selectedCustomDate) { showAlert({ icon: '⚠️', title: 'Выберите дату', message: 'Нажмите на оранжевый день', buttons: [{ text: 'OK', action: 'hideAlert()' }] }); return; } deadline = new Date(selectedCustomDate).toISOString().split('T')[0]; }
+    homeworks.push({ id: Date.now().toString(), subject: sel.value, text: pendingHwText, date: deadline, completed: false, createdAt: new Date().toISOString() });
+    save(); document.getElementById('hwText').value = ''; closeModal('hwModal'); showToday();
+}
+
+function openSettings() { currentSettingsTab = 'lessons'; renderSettings(); document.getElementById('settingsModal').classList.add('active'); }
+function closeSettings() { closeModal('settingsModal'); refreshView(); }
+
+function switchSettingsTab(tab) {
+    currentSettingsTab = tab;
+    document.querySelectorAll('.settings-tab').forEach((t, i) => t.classList.toggle('active', (tab === 'lessons' && i === 0) || (tab === 'groups' && i === 1)));
+    renderSettings();
+}
+
+function renderSettings() {
+    const c = document.getElementById('settingsContent');
+    if (currentSettingsTab === 'groups') {
+        c.innerHTML = '<div class="settings-list"><div class="settings-item"><div class="settings-item-info"><div class="settings-item-name">🇰🇬 Кыргызский язык</div><div class="settings-item-sub">Выберите группу</div></div></div><div class="settings-item ' + (groupSettings.kyrgyz === 'cont' ? '' : 'skipped') + '" onclick="setGroup(\'kyrgyz\',\'cont\')"><div class="settings-item-info"><div class="settings-item-name">Продолжающая</div></div>' + (groupSettings.kyrgyz === 'cont' ? '<div style="color:var(--success);font-weight:bold">✓</div>' : '') + '</div><div class="settings-item ' + (groupSettings.kyrgyz === 'beg' ? '' : 'skipped') + '" onclick="setGroup(\'kyrgyz\',\'beg\')"><div class="settings-item-info"><div class="settings-item-name">Начинающая</div></div>' + (groupSettings.kyrgyz === 'beg' ? '<div style="color:var(--success);font-weight:bold">✓</div>' : '') + '</div></div>';
+        return;
+    }
+    let html = '<div class="settings-list">';
+    for (let d = 1; d <= 6; d++) {
+        const lessons = schedule[d] || []; if (!lessons.length) continue;
+        html += '<div class="settings-day-header">' + dayNames[d] + '</div>';
+        lessons.forEach(l => {
+            const data = getLessonData(l), skipped = isLessonSkipped(l.id);
+            const wb = l.week === 'num' ? ' (числ)' : l.week === 'den' ? ' (знам)' : '';
+            const gb = l.kgGroup === 'cont' ? ' (прод.)' : l.kgGroup === 'beg' ? ' (нач.)' : '';
+            html += '<div class="settings-item ' + (skipped ? 'skipped' : '') + '"><div class="settings-item-info"><div class="settings-item-name">' + data.name + wb + gb + '</div><div class="settings-item-sub">' + data.time + ' • ' + (data.teacher || '—') + (data.room ? ' • ' + data.room : '') + '</div></div><div class="settings-item-actions"><button class="settings-action-btn skip ' + (skipped ? 'active' : '') + '" onclick="toggleSkipLesson(\'' + l.id + '\')">✕</button><button class="settings-action-btn edit" onclick="openEditLesson(\'' + l.id + '\')">✎</button><button class="settings-action-btn move" onclick="openMoveLesson(\'' + l.id + '\',' + d + ')">↕</button></div></div>';
+        });
+    }
+    c.innerHTML = html + '</div>';
+}
+
+function setGroup(type, value) { groupSettings[type] = groupSettings[type] === value ? undefined : value; save(); renderSettings(); }
+function toggleSkipLesson(id) { skippedLessons[id] = !skippedLessons[id]; if (!skippedLessons[id]) delete skippedLessons[id]; save(); renderSettings(); }
+
+function openEditLesson(id) {
+    editingLessonId = id; let lesson = null;
+    for (let d = 0; d <= 6; d++) { const found = (schedule[d] || []).find(l => l.id === id); if (found) { lesson = found; break; } }
+    if (!lesson) return; const data = getLessonData(lesson);
+    document.getElementById('editLessonName').value = data.name;
+    document.getElementById('editLessonTeacher').value = data.teacher || '';
+    document.getElementById('editLessonRoom').value = data.room || '';
+    document.getElementById('editLessonModal').classList.add('active');
+}
+
+function saveLesson() {
+    if (!editingLessonId) return;
+    lessonEdits[editingLessonId] = { name: document.getElementById('editLessonName').value.trim(), teacher: document.getElementById('editLessonTeacher').value.trim(), room: document.getElementById('editLessonRoom').value.trim() };
+    save(); closeModal('editLessonModal'); renderSettings();
+}
+
+function openMoveLesson(id, day) {
+    movingLessonId = id; movingLessonDay = day; selectedTimeSlot = null;
+    const lesson = schedule[day].find(l => l.id === id); if (!lesson) return;
+    const currentTime = getLessonData(lesson).time;
+    const occupiedTimes = schedule[day].filter(l => l.id !== id).map(l => getLessonData(l).time);
+    let html = '';
+    TIME_SLOTS.forEach(slot => {
+        const isOccupied = occupiedTimes.includes(slot.time), isCurrent = slot.time === currentTime;
+        html += '<div class="time-slot ' + (isOccupied ? 'occupied' : '') + (isCurrent ? ' selected' : '') + '"' + (!isOccupied ? ' onclick="selectTimeSlot(\'' + slot.time + '\')"' : '') + '><div class="time-slot-info"><div class="time-slot-time">' + slot.time + '</div><div class="time-slot-label">' + slot.label + '</div></div><div class="time-slot-status ' + (isOccupied ? 'occupied' : 'current') + '">' + (isOccupied ? '🔒 Занято' : (isCurrent ? '✓ Текущее' : '')) + '</div></div>';
+    });
+    document.getElementById('timeSlots').innerHTML = html;
+    document.getElementById('moveLessonModal').classList.add('active');
+}
+
+function selectTimeSlot(time) { selectedTimeSlot = time; document.querySelectorAll('.time-slot').forEach(el => { el.classList.remove('selected'); if (el.querySelector('.time-slot-time') && el.querySelector('.time-slot-time').textContent === time) el.classList.add('selected'); }); }
+
+function confirmMoveLesson() { if (!selectedTimeSlot || !movingLessonId) return; if (!lessonEdits[movingLessonId]) lessonEdits[movingLessonId] = {}; lessonEdits[movingLessonId].time = selectedTimeSlot; save(); closeModal('moveLessonModal'); renderSettings(); }
+
+function showAlert(opts) { document.getElementById('alertIcon').textContent = opts.icon || '⚠️'; document.getElementById('alertTitle').textContent = opts.title || ''; document.getElementById('alertMessage').textContent = opts.message || ''; document.getElementById('alertButtons').innerHTML = opts.buttons.map(b => '<button class="alert-btn ' + (b.type || 'primary') + '" onclick="' + b.action + '">' + b.text + '</button>').join(''); document.getElementById('customAlert').classList.add('active'); }
+function hideAlert() { document.getElementById('customAlert').classList.remove('active'); }
+
+function showDeleteAllAlert() { document.getElementById('deleteConfirmInput').value = ''; document.getElementById('confirmDeleteAllBtn').disabled = true; document.getElementById('deleteAllAlert').classList.add('active'); }
+function hideDeleteAllAlert() { document.getElementById('deleteAllAlert').classList.remove('active'); }
+function checkDeleteInput() { document.getElementById('confirmDeleteAllBtn').disabled = document.getElementById('deleteConfirmInput').value !== 'DELETE'; }
+
+function confirmDeleteAll() {
+    if (document.getElementById('deleteConfirmInput').value !== 'DELETE') { document.querySelector('#deleteAllAlert .alert-box').classList.add('shake'); setTimeout(() => document.querySelector('#deleteAllAlert .alert-box').classList.remove('shake'), 500); return; }
+    if (currentArchiveTab === 'upcoming') homeworks = []; else archivedHomeworks = [];
+    save(); hideDeleteAllAlert(); showArchive();
+}
+
+function confirmDeleteHomework(id) { showAlert({ icon: '🗑️', title: 'Удалить?', message: 'Это нельзя отменить', buttons: [{ text: 'Отмена', type: 'secondary', action: 'hideAlert()' }, { text: 'Удалить', type: 'danger', action: 'deleteHomework(\'' + id + '\')' }] }); }
+function deleteHomework(id) { homeworks = homeworks.filter(h => h.id !== id); archivedHomeworks = archivedHomeworks.filter(h => h.id !== id); save(); hideAlert(); if (isArchiveView) showArchive(); else refreshView(); }
+
+function groupLessonsByTime(lessons) {
+    const grouped = {};
+    lessons.forEach(l => { const data = getLessonData(l); if (!grouped[data.time]) grouped[data.time] = []; grouped[data.time].push(l); });
+    return grouped;
+}
+
+function renderLessons(lessons, date) {
+    if (!lessons.length) return '<div class="no-lessons"><div class="no-lessons-emoji">🎉</div>Пар нет — отдыхай!</div>';
+    const grouped = groupLessonsByTime(lessons);
+    let html = '';
     
-    <!-- Settings Modal -->
-    <div class="modal-overlay" id="settingsModal">
-        <div class="modal">
-            <div class="modal-title">Настройки</div>
-            <div class="settings-tabs">
-                <button class="settings-tab active" onclick="switchSettingsTab('lessons')">Пары</button>
-                <button class="settings-tab" onclick="switchSettingsTab('groups')">Группы</button>
-            </div>
-            <div id="settingsContent"></div>
-            <div class="modal-buttons" style="margin-top: 20px;">
-                <button class="modal-btn confirm" onclick="closeSettings()">Готово</button>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Edit Lesson Modal -->
-    <div class="modal-overlay" id="editLessonModal">
-        <div class="modal">
-            <div class="modal-title">Редактировать пару</div>
-            <div class="edit-form">
-                <div class="edit-field">
-                    <label>Название</label>
-                    <input type="text" id="editLessonName">
-                </div>
-                <div class="edit-field">
-                    <label>Преподаватель</label>
-                    <input type="text" id="editLessonTeacher">
-                </div>
-                <div class="edit-field">
-                    <label>Аудитория</label>
-                    <input type="text" id="editLessonRoom">
-                </div>
-                <div class="edit-field">
-                    <label>Время</label>
-                    <input type="text" id="editLessonTime" placeholder="07:30-09:00">
-                </div>
-            </div>
-            <div class="modal-buttons" style="margin-top: 20px;">
-                <button class="modal-btn cancel" onclick="closeEditLessonModal()">Отмена</button>
-                <button class="modal-btn confirm" onclick="saveLesson()">Сохранить</button>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Delete All Alert -->
-    <div class="custom-alert" id="deleteAllAlert">
-        <div class="alert-box">
-            <div class="alert-icon">🗑️</div>
-            <div class="alert-title">Удалить всё?</div>
-            <div class="alert-message">Введите DELETE для подтверждения</div>
-            <input type="text" class="alert-input" id="deleteConfirmInput" placeholder="DELETE" oninput="checkDeleteInput()">
-            <div class="alert-buttons">
-                <button class="alert-btn secondary" onclick="hideDeleteAllAlert()">Отмена</button>
-                <button class="alert-btn danger" id="confirmDeleteAllBtn" disabled onclick="confirmDeleteAll()">Удалить</button>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Custom Alert -->
-    <div class="custom-alert" id="customAlert">
-        <div class="alert-box">
-            <div class="alert-icon" id="alertIcon">⚠️</div>
-            <div class="alert-title" id="alertTitle"></div>
-            <div class="alert-message" id="alertMessage"></div>
-            <div class="alert-buttons" id="alertButtons"></div>
-        </div>
-    </div>
+    sortByTime(Object.keys(grouped)).forEach(time => {
+        const timeLessons = grouped[time];
+        const isCurrent = isCurrentLesson(time, date);
+        const kgLessons = timeLessons.filter(l => l.kgGroup);
+        const weekLessons = timeLessons.filter(l => l.week && !l.kgGroup);
+        const regularLessons = timeLessons.filter(l => !l.kgGroup && !l.week);
 
-    <script>
-        // ===== DATA =====
-        const defaultSchedule = {
-            1: [
-                { id: '1-1', time: "07:30-09:00", name: "Статистика", type: "лек", teacher: "Омурканов Ырысбек Калыкович", room: "" },
-                { id: '1-2', time: "10:00-11:30", name: "Иностранный язык", type: "пр", teacher: "Любимова Наталья Александровна", room: "4/201" },
-                { id: '1-3', time: "11:40-13:10", name: "Микроэкономика", type: "лек", teacher: "Кумсков Геннадий Владимирович", room: "3/204" },
-                { id: '1-4', time: "13:30-15:00", name: "История Кыргызстана", type: "пр", teacher: "Батырбаева Шайыркул Джолдошевна", room: "3/205" },
-                { id: '1-5', time: "15:10-16:40", name: "Микроэкономика", type: "пр", teacher: "Кумсков Геннадий Владимирович", room: "3/204" }
-            ],
-            2: [
-                { id: '2-1', time: "07:30-09:00", name: "Физическая культура и спорт", type: "пр", teacher: "", room: "" },
-                { id: '2-2', time: "10:00-11:30", name: "Психология общения", type: "лек", teacher: "Арунова Айзада Абдыкеримовна", room: "3/207", week: "num" },
-                { id: '2-3', time: "11:40-13:10", name: "Психология общения", type: "пр", teacher: "Арунова Айзада Абдыкеримовна", room: "3/204", week: "num" },
-                { id: '2-4', time: "11:40-13:10", name: "ИТ в профессиональной деятельности", type: "пр", teacher: "Сейталиева Насихат Ашымбековна", room: "3/204", week:
-                { id: '2-5', time: "13:30-15:00", name: "Экономическая Теория", type: "Семинар", teacher: "Крыжанова Лариса Степановна", room: "3/204", week: 
-"den" }
-            ],
-            3: [
-                { id: '3-1', time: "07:30-09:00", name: "История Кыргызстана", type: "лек", teacher: "Марченко Лариса Юрьевна", room: "" },
-                { id: '3-3', time: "10:00-11:30", name: "Кыргызский язык", type: "", teacher: "", room: "", kgGroup: "beg" }
-            ],
-            4: [
-                { id: '4-1', time: "10:00-11:30", name: "Иностранный язык", type: "пр", teacher: "Любимова Наталья Александровна", room: "3/201" },
-                { id: '4-2', time: "11:40-13:10", name: "Статистика", type: "пр", teacher: "Омурканов Ырысбек Калыкович", room: "3/205" },
-                { id: '4-3', time: "13:30-15:00", name: "ИТ в профессиональной деятельности", type: "пр", teacher: "Сейталиева Насихат Ашымбековна", room: "11/213", week: "num" },
-                { id: '4-4', time: "13:30-15:00", name: "ИТ в профессиональной деятельности", type: "пр", teacher: "Сейталиева Насихат Ашымбековна", room: "11/213", week: "den" },
-                { id: '4-5', time: "15:10-16:40", name: "ИТ в профессиональной деятельности", type: "пр", teacher: "Сейталиева Насихат Ашымбековна", room: "11/213", week: "num" },
-                { id: '4-6', time: "15:10-16:40", name: "ИТ в профессиональной деятельности", type: "пр", teacher: "Сейталиева Насихат Ашымбековна", room: "11/213", week: "den" }
-            ],
-            5: [
-                { id: '5-1', time: "07:30-09:00", name: "Физическая культура и спорт", type: "пр", teacher: "", room: "" },
-                { id: '5-2', time: "10:00-11:30", name: "Кыргызский язык", type: "пр", teacher: "Рыспаева Гулжамал Сапарбековна", room: "", kgGroup: "cont" },
-                { id: '5-3', time: "10:00-11:30", name: "Кыргызский язык", type: "", teacher: "", room: "", kgGroup: "beg" },
-                { id: '5-4', time: "11:40-13:10", name: "Экономическая теория", type: "лекция", teacher: "Крыжанова Лариса Степановна", room: "3/204" },
-                { id: '5-5', time: "13:30-15:00", name: "Русский язык", type: "пр", teacher: "Дугина Ольга Васильевна", room: "3/208" }
-            ],
-            6: [
-                { id: '6-1', time: "10:00-11:30", name: "Высшая математика", type: "пр", teacher: "Байзаков Асан Байзакович", room: "3/209" },
-                { id: '6-2', time: "11:40-13:10", name: "Высшая математика", type: "лек", teacher: "Байзаков Асан Байзакович", room: "3/209" },
-                { id: '6-3', time: "13:30-15:00", name: "Кыргызский язык", type: "пр", teacher: "Рыспаева Гулжамал Сапарбековна", room: "11/106", kgGroup: "cont" }
-            ],
-            0: []
-        };
+        regularLessons.forEach(l => {
+            const data = getLessonData(l), skipped = isLessonSkipped(l.id);
+            const typeStr = data.type ? ' (' + data.type + ')' : '';
+            const hwHtml = skipped ? '' : renderHomeworkBlock(data.name);
+            html += '<div class="lesson ' + (isCurrent ? 'current ' : '') + (skipped ? 'skipped' : '') + '"><div class="lesson-time">' + data.time + (isCurrent && !skipped ? ' <span class="badge current">СЕЙЧАС</span>' : '') + (skipped ? ' <span class="badge skipped">ПРОПУСК</span>' : '') + '</div><div class="lesson-main"><div class="lesson-info"><div class="lesson-name">' + data.name + typeStr + '</div>' + (data.teacher ? '<div class="lesson-teacher">' + data.teacher + '</div>' : '') + '</div>' + (data.room ? '<div class="lesson-room">' + data.room + '</div>' : '') + '</div>' + hwHtml + '</div>';
+        });
 
-        const dayNames = ['Воскресенье', 'Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота'];
-        const months = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'];
-        const monthNames = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
-
-        // ===== STATE =====
-        let schedule = JSON.parse(localStorage.getItem('schedule')) || JSON.parse(JSON.stringify(defaultSchedule));
-        let skippedLessons = JSON.parse(localStorage.getItem('skippedLessons') || '{}');
-        let lessonEdits = JSON.parse(localStorage.getItem('lessonEdits') || '{}');
-        let groupSettings = JSON.parse(localStorage.getItem('groupSettings') || '{}');
-        let homeworks = JSON.parse(localStorage.getItem('homeworks') || '[]');
-        let archivedHomeworks = JSON.parse(localStorage.getItem('archivedHomeworks') || '[]');
-
-        let currentWeekType = 'num';
-        let currentWeekNumber = 1;
-        let isFullView = false;
-        let isArchiveView = false;
-        let isDarkTheme = false;
-        let showingTomorrow = false;
-        let currentArchiveTab = 'upcoming';
-        let currentSettingsTab = 'lessons';
-        let pendingHwText = '';
-        let selectedDateType = 'next';
-        let selectedCustomDate = null;
-        let calendarMonth = new Date().getMonth();
-        let calendarYear = new Date().getFullYear();
-        let editingLessonId = null;
-
-        // ===== UTILS =====
-        function save() {
-            localStorage.setItem('skippedLessons', JSON.stringify(skippedLessons));
-            localStorage.setItem('lessonEdits', JSON.stringify(lessonEdits));
-            localStorage.setItem('groupSettings', JSON.stringify(groupSettings));
-            localStorage.setItem('homeworks', JSON.stringify(homeworks));
-            localStorage.setItem('archivedHomeworks', JSON.stringify(archivedHomeworks));
-        }
-
-        function getAcademicWeekInfo(date) {
-            const start = new Date(2025, 8, 1);
-            if (date < start) return { weekNumber: 0, type: 'num' };
-            const diff = Math.floor((date - start) / (1000 * 60 * 60 * 24));
-            const weekNumber = Math.floor(diff / 7) + 1;
-            return { weekNumber, type: weekNumber % 2 === 1 ? 'num' : 'den' };
-        }
-
-        function parseTime(timeStr) {
-            const [start, end] = timeStr.split('-');
-            const [sH, sM] = start.split(':').map(Number);
-            const [eH, eM] = end.split(':').map(Number);
-            return { start: sH * 60 + sM, end: eH * 60 + eM };
-        }
-
-        function isCurrentLesson(timeStr, date) {
-            const now = new Date();
-            const today = new Date(); today.setHours(0,0,0,0);
-            const check = new Date(date); check.setHours(0,0,0,0);
-            if (today.getTime() !== check.getTime()) return false;
-            const mins = now.getHours() * 60 + now.getMinutes();
-            const { start, end } = parseTime(timeStr);
-            return mins >= start && mins <= end;
-        }
-
-        function getDaysUntil(dateStr) {
-            const today = new Date(); today.setHours(0,0,0,0);
-            const target = new Date(dateStr); target.setHours(0,0,0,0);
-            return Math.ceil((target - today) / (1000 * 60 * 60 * 24));
-        }
-
-        function formatDaysLeft(days) {
-            if (days < 0) return { text: 'просрочено', urgent: true };
-            if (days === 0) return { text: 'сегодня', urgent: true };
-            if (days === 1) return { text: 'завтра', urgent: true };
-            if (days <= 3) return { text: `${days} дня`, urgent: true };
-            return { text: `${days} дн.`, urgent: false };
-        }
-
-        function formatFullDate(dateStr) {
-            const d = new Date(dateStr);
-            return `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
-        }
-
-        function getLessonData(lesson) {
-            const edits = lessonEdits[lesson.id] || {};
-            return {
-                ...lesson,
-                name: edits.name || lesson.name,
-                teacher: edits.teacher !== undefined ? edits.teacher : lesson.teacher,
-                room: edits.room !== undefined ? edits.room : lesson.room,
-                time: edits.time || lesson.time
-            };
-        }
-
-        function isLessonSkipped(id) {
-            return skippedLessons[id] === true;
-        }
-
-        function isGroupDisabled(lesson) {
-            if (lesson.kgGroup === 'cont' && groupSettings.kyrgyz === 'beg') return true;
-            if (lesson.kgGroup === 'beg' && groupSettings.kyrgyz === 'cont') return true;
-            return false;
-        }
-
-        function getSubjects() {
-            const subjects = new Set();
-            for (let d = 0; d <= 6; d++) {
-                (schedule[d] || []).forEach(l => subjects.add(l.name));
-            }
-            return Array.from(subjects).sort();
-        }
-
-        // ===== THEME =====
-        function toggleTheme() {
-            isDarkTheme = !isDarkTheme;
-            document.body.classList.toggle('dark-theme', isDarkTheme);
-            document.querySelectorAll('.toggle-switch').forEach(el => el.classList.toggle('active', isDarkTheme));
-            localStorage.setItem('darkTheme', isDarkTheme);
-        }
-
-        function loadTheme() {
-            isDarkTheme = localStorage.getItem('darkTheme') === 'true';
-            document.body.classList.toggle('dark-theme', isDarkTheme);
-            document.querySelectorAll('.toggle-switch').forEach(el => el.classList.toggle('active', isDarkTheme));
-        }
-
-        // ===== WEEK DISPLAY =====
-        function updateWeekTypeDisplay(date) {
-            const info = getAcademicWeekInfo(date);
-            currentWeekType = info.type;
-            currentWeekNumber = info.weekNumber;
-
-            const el = document.getElementById('weekType');
-            const dot = document.querySelector('.week-type-dot');
-            const name = document.getElementById('weekTypeName');
-            const num = document.getElementById('weekNumber');
-
-            dot.className = 'week-type-dot ' + (currentWeekType === 'num' ? 'numerator' : 'denominator');
-            el.className = 'week-type ' + (currentWeekType === 'num' ? 'numerator-week' : 'denominator-week');
-            name.textContent = currentWeekType === 'num' ? 'Числитель' : 'Знаменатель';
-            num.textContent = currentWeekNumber > 0 ? `(${currentWeekNumber} нед.)` : '(до начала)';
-        }
-
-        // ===== TOMORROW =====
-        function toggleTomorrow() {
-            showingTomorrow = !showingTomorrow;
-            document.getElementById('tomorrowToggle').classList.toggle('active', showingTomorrow);
-            document.getElementById('tomorrowToggle').textContent = showingTomorrow ? 'сегодня' : 'завтра';
-            renderMainSchedule();
-        }
-
-        function getDisplayDate() {
-            const d = new Date();
-            if (showingTomorrow) d.setDate(d.getDate() + 1);
-            return d;
-        }
-
-        // ===== HOMEWORKS =====
-        function archiveOldHomeworks() {
-            const today = new Date(); today.setHours(0,0,0,0);
-            const toArchive = homeworks.filter(hw => {
-                const d = new Date(hw.date); d.setHours(0,0,0,0);
-                return d < today;
+        if (weekLessons.length > 0) {
+            html += '<div class="lesson-double ' + (isCurrent ? 'current' : '') + '"><div class="lesson-double-time">' + time + (isCurrent ? ' <span class="badge current">СЕЙЧАС</span>' : '') + '</div><div class="lesson-double-items">';
+            weekLessons.forEach(l => {
+                const data = getLessonData(l), skipped = isLessonSkipped(l.id);
+                const typeStr = data.type ? ' (' + data.type + ')' : '';
+                const weekLabel = l.week === 'num' ? 'Числитель' : 'Знаменатель';
+                const labelClass = l.week === 'num' ? 'num-label' : 'den-label';
+                const itemClass = l.week === 'num' ? 'num-item' : 'den-item';
+                const isInactive = l.week !== currentWeekType;
+                const hwHtml = (skipped || isInactive) ? '' : renderHomeworkBlock(data.name);
+                html += '<div class="lesson-double-item ' + itemClass + ' ' + (isInactive ? 'inactive-item ' : '') + (skipped ? 'skipped' : '') + '"><div class="lesson-double-item-main"><div class="lesson-info"><div class="group-label ' + labelClass + '">' + weekLabel + (skipped ? ' • ПРОПУСК' : '') + '</div><div class="lesson-name">' + data.name + typeStr + '</div>' + (data.teacher ? '<div class="lesson-teacher">' + data.teacher + '</div>' : '') + '</div>' + (data.room ? '<div class="lesson-room">' + data.room + '</div>' : '') + '</div>' + hwHtml + '</div>';
             });
-            if (toArchive.length) {
-                archivedHomeworks = [...archivedHomeworks, ...toArchive];
-                homeworks = homeworks.filter(hw => {
-                    const d = new Date(hw.date); d.setHours(0,0,0,0);
-                    return d >= today;
-                });
-                save();
-            }
-        }
-
-        function getHomeworksForSubject(name) {
-            return homeworks.filter(hw => hw.subject === name);
-        }
-
-        function toggleHomework(id, e) {
-            e.stopPropagation();
-            const hw = homeworks.find(h => h.id === id);
-            if (hw) {
-                hw.completed = !hw.completed;
-                save();
-                refreshView();
-            }
-        }
-
-        function openHwDetail(id, e) {
-            e.stopPropagation();
-            const hw = homeworks.find(h => h.id === id);
-            if (!hw) return;
-
-            document.getElementById('hwDetailSubject').textContent = hw.subject;
-            document.getElementById('hwDetailText').textContent = hw.text;
-            document.getElementById('hwDetailDeadline').textContent = formatFullDate(hw.date);
-
-            const days = getDaysUntil(hw.date);
-            const info = formatDaysLeft(days);
-            const daysEl = document.getElementById('hwDetailDays');
-            daysEl.textContent = info.text;
-            daysEl.className = 'hw-detail-value' + (info.urgent ? ' urgent' : '');
-
-            const statusEl = document.getElementById('hwDetailStatus');
-            statusEl.textContent = hw.completed ? 'Выполнено' : 'В процессе';
-            statusEl.className = 'hw-detail-value' + (hw.completed ? ' completed' : '');
-
-            document.getElementById('hwDetailModal').classList.add('active');
-        }
-
-        function closeHwDetailModal() {
-            document.getElementById('hwDetailModal').classList.remove('active');
-        }
-
-        function renderHomeworkBlock(subjectName) {
-            const hws = getHomeworksForSubject(subjectName);
-            if (!hws.length) return '';
-
-            return hws.map(hw => {
-                const days = getDaysUntil(hw.date);
-                const info = formatDaysLeft(days);
-                return `
-                <div class="lesson-homework ${hw.completed ? 'completed' : ''}" onclick="openHwDetail('${hw.id}', event)">
-                    <div class="hw-header">
-                        <span class="hw-label">ДЗ</span>
-                        <span class="hw-deadline ${info.urgent ? 'urgent' : ''}">${info.text}</span>
-                    </div>
-                    <div class="hw-content">
-                        <div class="hw-checkbox ${hw.completed ? 'checked' : ''}" onclick="toggleHomework('${hw.id}', event)"></div>
-                        <div class="hw-text">${hw.text}</div>
-                    </div>
-                </div>`;
-            }).join('');
-        }
-
-        // ===== HW MODAL =====
-        function openHwModal() {
-            const input = document.getElementById('hwText');
-            const text = input.value.trim();
-            if (!text) {
-                input.classList.add('shake', 'error');
-                setTimeout(() => input.classList.remove('shake', 'error'), 500);
-                return;
-            }
-            pendingHwText = text;
-            populateSubjects();
-            document.getElementById('hwSubject').value = '';
-            selectDateOption(document.querySelector('[data-type="next"]'));
-            document.getElementById('calendarContainer').classList.add('hidden');
-            document.getElementById('hwModal').classList.add('active');
-        }
-
-        function closeHwModal() {
-            document.getElementById('hwModal').classList.remove('active');
-        }
-
-        function populateSubjects() {
-            const sel = document.getElementById('hwSubject');
-            const subjects = getSubjects();
-            sel.innerHTML = '<option value="">Выберите предмет...</option>' +
-                subjects.map(s => `<option value="${s}">${s}</option>`).join('');
-        }
-
-        function selectDateOption(el) {
-            document.querySelectorAll('.date-option').forEach(o => o.classList.remove('selected'));
-            el.classList.add('selected');
-            selectedDateType = el.dataset.type;
-
-            if (selectedDateType === 'custom') {
-                renderCalendar();
-                document.getElementById('calendarContainer').classList.remove('hidden');
-            } else {
-                document.getElementById('calendarContainer').classList.add('hidden');
-                selectedCustomDate = null;
-            }
-        }
-
-        function onSubjectChange() {
-            if (selectedDateType === 'custom') renderCalendar();
-        }
-
-        function getNextLessonDate(subjectName) {
-            if (!subjectName) return null;
-            const today = new Date();
-            const lessonDays = [];
-
-            for (let d = 0; d <= 6; d++) {
-                if ((schedule[d] || []).some(l => getLessonData(l).name === subjectName && !isLessonSkipped(l.id))) {
-                    lessonDays.push(d);
-                }
-            }
-
-            if (!lessonDays.length) return null;
-
-            for (let i = 1; i <= 30; i++) {
-                const check = new Date(today);
-                check.setDate(today.getDate() + i);
-                const checkDay = check.getDay();
-                if (lessonDays.includes(checkDay)) {
-                    const weekInfo = getAcademicWeekInfo(check);
-                    const dayLessons = schedule[checkDay];
-                    const valid = dayLessons.some(l => 
-                        getLessonData(l).name === subjectName && 
-                        !isLessonSkipped(l.id) && 
-                        (!l.week || l.week === weekInfo.type)
-                    );
-                    if (valid) return check;
-                }
-            }
-            return null;
-        }
-
-        function getSubjectDates(subjectName) {
-            if (!subjectName) return [];
-            const dates = [];
-            const end = new Date(2027, 5, 30);
-            const today = new Date();
-
-            for (let d = new Date(today); d <= end; d.setDate(d.getDate() + 1)) {
-                const dayNum = d.getDay();
-                const lessons = schedule[dayNum] || [];
-                const weekInfo = getAcademicWeekInfo(d);
-                if (lessons.some(l => 
-                    getLessonData(l).name === subjectName && 
-                    !isLessonSkipped(l.id) && 
-                    (!l.week || l.week === weekInfo.type)
-                )) {
-                    dates.push(new Date(d));
-                }
-            }
-            return dates;
-        }
-
-        function renderCalendar() {
-            const subject = document.getElementById('hwSubject').value;
-            const subjectDates = getSubjectDates(subject);
-            const container = document.getElementById('calendarContainer');
-
-            const firstDay = new Date(calendarYear, calendarMonth, 1);
-            const lastDay = new Date(calendarYear, calendarMonth + 1, 0);
-            const startDay = firstDay.getDay() || 7;
-            const today = new Date(); today.setHours(0,0,0,0);
-
-            let html = `
-            <div class="calendar">
-                <div class="calendar-header">
-                    <div class="calendar-title">${monthNames[calendarMonth]} ${calendarYear}</div>
-                    <div class="calendar-nav">
-                        <button class="calendar-nav-btn" onclick="prevMonth()">←</button>
-                        <button class="calendar-nav-btn" onclick="nextMonth()">→</button>
-                    </div>
-                </div>
-                <div class="calendar-weekdays">
-                    <div class="calendar-weekday">Пн</div>
-                    <div class="calendar-weekday">Вт</div>
-                    <div class="calendar-weekday">Ср</div>
-                    <div class="calendar-weekday">Чт</div>
-                    <div class="calendar-weekday">Пт</div>
-                    <div class="calendar-weekday">Сб</div>
-                    <div class="calendar-weekday">Вс</div>
-                </div>
-                <div class="calendar-days">`;
-
-            for (let i = 1; i < startDay; i++) {
-                const d = new Date(calendarYear, calendarMonth, 1 - (startDay - i));
-                html += `<div class="calendar-day other-month">${d.getDate()}</div>`;
-            }
-
-            for (let d = 1; d <= lastDay.getDate(); d++) {
-                const date = new Date(calendarYear, calendarMonth, d);
-                date.setHours(0,0,0,0);
-                const isToday = date.getTime() === today.getTime();
-                const isPast = date < today;
-                const hasLesson = subjectDates.some(sd => {
-                    sd.setHours(0,0,0,0);
-                    return sd.getTime() === date.getTime();
-                });
-                const isSelected = selectedCustomDate && 
-                    new Date(selectedCustomDate).setHours(0,0,0,0) === date.getTime();
-
-                let classes = 'calendar-day';
-                if (isToday) classes += ' today';
-                if (hasLesson && !isPast) classes += ' has-lesson';
-                if (isSelected) classes += ' selected';
-                if (isPast || !hasLesson) classes += ' disabled';
-
-                const clickable = !isPast && hasLesson;
-                const onclick = clickable ? `onclick="selectCalendarDate('${date.toISOString()}')"` : '';
-
-                html += `<div class="${classes}" ${onclick}>${d}</div>`;
-            }
-
             html += '</div></div>';
-            container.innerHTML = html;
         }
 
-        function prevMonth() {
-            calendarMonth--;
-            if (calendarMonth < 0) { calendarMonth = 11; calendarYear--; }
-            renderCalendar();
-        }
-
-        function nextMonth() {
-            calendarMonth++;
-            if (calendarMonth > 11) { calendarMonth = 0; calendarYear++; }
-            renderCalendar();
-        }
-
-        function selectCalendarDate(isoStr) {
-            selectedCustomDate = isoStr;
-            renderCalendar();
-        }
-
-        function confirmAddHomework() {
-            const sel = document.getElementById('hwSubject');
-            const subject = sel.value;
-
-            if (!subject) {
-                sel.classList.add('shake', 'error');
-                setTimeout(() => sel.classList.remove('shake', 'error'), 500);
-                return;
-            }
-
-            let deadline;
-            if (selectedDateType === 'next') {
-                const nextDate = getNextLessonDate(subject);
-                if (!nextDate) {
-                    showAlert({ icon: '⚠️', title: 'Ошибка', message: 'Не найдена следующая пара', buttons: [{ text: 'OK', action: 'hideAlert()' }] });
-                    return;
-                }
-                deadline = nextDate.toISOString().split('T')[0];
-            } else {
-                if (!selectedCustomDate) {
-                    showAlert({ icon: '⚠️', title: 'Выберите дату', message: 'Нажмите на оранжевый день', buttons: [{ text: 'OK', action: 'hideAlert()' }] });
-                    return;
-                }
-                deadline = new Date(selectedCustomDate).toISOString().split('T')[0];
-            }
-
-            homeworks.push({
-                id: Date.now().toString(),
-                subject,
-                text: pendingHwText,
-                date: deadline,
-                completed: false,
-                createdAt: new Date().toISOString()
+        if (kgLessons.length > 0) {
+            html += '<div class="lesson-double ' + (isCurrent ? 'current' : '') + '"><div class="lesson-double-time">' + time + (isCurrent ? ' <span class="badge current">СЕЙЧАС</span>' : '') + '</div><div class="lesson-double-items">';
+            kgLessons.forEach(l => {
+                const data = getLessonData(l), skipped = isLessonSkipped(l.id);
+                const groupDisabled = isGroupDisabled(l);
+                const typeStr = data.type ? ' (' + data.type + ')' : '';
+                const groupLabel = l.kgGroup === 'cont' ? 'Продолжающая группа' : 'Начинающая группа';
+                const isDisabled = skipped || groupDisabled;
+                const hwHtml = isDisabled ? '' : renderHomeworkBlock(data.name);
+                html += '<div class="lesson-double-item ' + (isDisabled ? 'skipped' : '') + '"><div class="lesson-double-item-main"><div class="lesson-info"><div class="group-label kg-label">' + groupLabel + (skipped ? ' • ПРОПУСК' : '') + '</div><div class="lesson-name">' + data.name + typeStr + '</div>' + (data.teacher ? '<div class="lesson-teacher">' + data.teacher + '</div>' : '') + '</div>' + (data.room ? '<div class="lesson-room">' + data.room + '</div>' : '') + '</div>' + hwHtml + '</div>';
             });
-
-            save();
-            document.getElementById('hwText').value = '';
-            pendingHwText = '';
-            closeHwModal();
-            showToday();
+            html += '</div></div>';
         }
-
-        // ===== SETTINGS =====
-        function openSettings() {
-            currentSettingsTab = 'lessons';
-            renderSettings();
-            document.getElementById('settingsModal').classList.add('active');
-        }
-
-        function closeSettings() {
-            document.getElementById('settingsModal').classList.remove('active');
-            refreshView();
-        }
-
-        function switchSettingsTab(tab) {
-            currentSettingsTab = tab;
-            document.querySelectorAll('.settings-tab').forEach((t, i) => {
-                t.classList.toggle('active', (tab === 'lessons' && i === 0) || (tab === 'groups' && i === 1));
-            });
-            renderSettings();
-        }
-
-        function renderSettings() {
-            const container = document.getElementById('settingsContent');
-
-            if (currentSettingsTab === 'groups') {
-                container.innerHTML = `
-                    <div class="settings-list">
-                        <div class="settings-item">
-                            <div class="settings-item-info">
-                                <div class="settings-item-name">Кыргызский язык</div>
-                                <div class="settings-item-sub">Выберите вашу группу</div>
-                            </div>
-                        </div>
-                        <div class="settings-item ${groupSettings.kyrgyz === 'cont' ? '' : 'skipped'}" onclick="setGroup('kyrgyz', 'cont')">
-                            <div class="settings-item-info">
-                                <div class="settings-item-name">Продолжающая группа</div>
-                            </div>
-                            ${groupSettings.kyrgyz === 'cont' ? '<div style="color:var(--success);font-weight:bold;">✓</div>' : ''}
-                        </div>
-                        <div class="settings-item ${groupSettings.kyrgyz === 'beg' ? '' : 'skipped'}" onclick="setGroup('kyrgyz', 'beg')">
-                            <div class="settings-item-info">
-                                <div class="settings-item-name">Начинающая группа</div>
-                            </div>
-                            ${groupSettings.kyrgyz === 'beg' ? '<div style="color:var(--success);font-weight:bold;">✓</div>' : ''}
-                        </div>
-                    </div>
-                `;
-                return;
-            }
-
-            let html = '<div class="settings-list">';
-            for (let d = 1; d <= 6; d++) {
-                const lessons = schedule[d] || [];
-                if (!lessons.length) continue;
-
-                html += `<div style="font-size:13px;font-weight:600;color:var(--text-secondary);padding:12px 0 6px;">${dayNames[d]}</div>`;
-
-                lessons.forEach(lesson => {
-                    const data = getLessonData(lesson);
-                    const skipped = isLessonSkipped(lesson.id);
-                    const weekBadge = lesson.week === 'num' ? ' (числ)' : lesson.week === 'den' ? ' (знам)' : '';
-                    const groupBadge = lesson.kgGroup === 'cont' ? ' (прод.)' : lesson.kgGroup === 'beg' ? ' (нач.)' : '';
-                    html += `
-                        <div class="settings-item ${skipped ? 'skipped' : ''}">
-                            <div class="settings-item-info">
-                                <div class="settings-item-name">${data.name}${weekBadge}${groupBadge}</div>
-                                <div class="settings-item-sub">${data.time} • ${data.teacher || 'Преподаватель не указан'}${data.room ? ' • ' + data.room : ''}</div>
-                            </div>
-                            <div class="settings-item-actions">
-                                <button class="settings-action-btn skip ${skipped ? 'active' : ''}" onclick="toggleSkipLesson('${lesson.id}')" title="Пропустить">
-                                    ✕
-                                </button>
-                                <button class="settings-action-btn edit" onclick="openEditLesson('${lesson.id}')" title="Редактировать">
-                                    ✎
-                                </button>
-                            </div>
-                        </div>
-                    `;
-                });
-            }
-            html += '</div>';
-            container.innerHTML = html;
-        }
-
-        function setGroup(type, value) {
-            if (groupSettings[type] === value) {
-                delete groupSettings[type];
-            } else {
-                groupSettings[type] = value;
-            }
-            save();
-            renderSettings();
-        }
-
-        function toggleSkipLesson(id) {
-            skippedLessons[id] = !skippedLessons[id];
-            if (!skippedLessons[id]) delete skippedLessons[id];
-            save();
-            renderSettings();
-        }
-
-        function openEditLesson(id) {
-            editingLessonId = id;
-            
-            let lesson = null;
-            for (let d = 0; d <= 6; d++) {
-                const found = (schedule[d] || []).find(l => l.id === id);
-                if (found) { lesson = found; break; }
-            }
-            
-            if (!lesson) return;
-            
-            const data = getLessonData(lesson);
-            document.getElementById('editLessonName').value = data.name;
-            document.getElementById('editLessonTeacher').value = data.teacher || '';
-            document.getElementById('editLessonRoom').value = data.room || '';
-            document.getElementById('editLessonTime').value = data.time;
-            
-            document.getElementById('editLessonModal').classList.add('active');
-        }
-
-        function closeEditLessonModal() {
-            document.getElementById('editLessonModal').classList.remove('active');
-            editingLessonId = null;
-        }
-
-        function saveLesson() {
-            if (!editingLessonId) return;
-            
-            const name = document.getElementById('editLessonName').value.trim();
-            const teacher = document.getElementById('editLessonTeacher').value.trim();
-            const room = document.getElementById('editLessonRoom').value.trim();
-            const time = document.getElementById('editLessonTime').value.trim();
-            
-            if (!name || !time) {
-                showAlert({
-                    icon: '⚠️',
-                    title: 'Ошибка',
-                    message: 'Название и время обязательны',
-                    buttons: [{ text: 'OK', action: 'hideAlert()' }]
-                });
-                return;
-            }
-            
-            lessonEdits[editingLessonId] = { name, teacher, room, time };
-            save();
-            
-            closeEditLessonModal();
-            renderSettings();
-        }
-
-        // ===== ALERTS =====
-        function showAlert(opts) {
-            document.getElementById('alertIcon').textContent = opts.icon || '⚠️';
-            document.getElementById('alertTitle').textContent = opts.title || '';
-            document.getElementById('alertMessage').textContent = opts.message || '';
-            document.getElementById('alertButtons').innerHTML = opts.buttons.map(b =>
-                `<button class="alert-btn ${b.type || 'primary'}" onclick="${b.action}">${b.text}</button>`
-            ).join('');
-            document.getElementById('customAlert').classList.add('active');
-        }
-
-        function hideAlert() {
-            document.getElementById('customAlert').classList.remove('active');
-        }
-
-        function showDeleteAllAlert() {
-            document.getElementById('deleteConfirmInput').value = '';
-            document.getElementById('confirmDeleteAllBtn').disabled = true;
-            document.getElementById('deleteAllAlert').classList.add('active');
-        }
-
-        function hideDeleteAllAlert() {
-            document.getElementById('deleteAllAlert').classList.remove('active');
-        }
-
-        function checkDeleteInput() {
-            const input = document.getElementById('deleteConfirmInput');
-            document.getElementById('confirmDeleteAllBtn').disabled = input.value !== 'DELETE';
-        }
-
-        function confirmDeleteAll() {
-            const input = document.getElementById('deleteConfirmInput');
-            if (input.value !== 'DELETE') {
-                document.querySelector('#deleteAllAlert .alert-box').classList.add('shake');
-                setTimeout(() => document.querySelector('#deleteAllAlert .alert-box').classList.remove('shake'), 500);
-                return;
-            }
-
-            if (currentArchiveTab === 'upcoming') {
-                homeworks = [];
-            } else {
-                archivedHomeworks = [];
-            }
-            save();
-            hideDeleteAllAlert();
-            showArchive();
-        }
-
-        function confirmDeleteHomework(id) {
-            showAlert({
-                icon: '🗑️',
-                title: 'Удалить задание?',
-                message: 'Это действие нельзя отменить',
-                buttons: [
-                    { text: 'Отмена', type: 'secondary', action: 'hideAlert()' },
-                    { text: 'Удалить', type: 'danger', action: `deleteHomework('${id}')` }
-                ]
-            });
-        }
-
-        function deleteHomework(id) {
-            homeworks = homeworks.filter(h => h.id !== id);
-            archivedHomeworks = archivedHomeworks.filter(h => h.id !== id);
-            save();
-            hideAlert();
-            if (isArchiveView) showArchive();
-            else refreshView();
-        }
-
-        // ===== RENDER SCHEDULE =====
-        function groupLessonsByTime(lessons) {
-            const grouped = {};
-            lessons.forEach(l => {
-                const data = getLessonData(l);
-                if (!grouped[data.time]) grouped[data.time] = [];
-                grouped[data.time].push(l);
-            });
-            return grouped;
-        }
-
-        function renderLessons(lessons, date) {
-            if (!lessons.length) {
-                return `<div class="no-lessons"><div class="no-lessons-emoji">🎉</div>Пар нет — отдыхай!</div>`;
-            }
-
-            const grouped = groupLessonsByTime(lessons);
-            let html = '';
-
-            Object.keys(grouped).sort().forEach(time => {
-                const timeLessons = grouped[time];
-                const isCurrent = isCurrentLesson(time, date);
-
-                const kgLessons = timeLessons.filter(l => l.kgGroup);
-                const weekLessons = timeLessons.filter(l => l.week && !l.kgGroup);
-                const regularLessons = timeLessons.filter(l => !l.kgGroup && !l.week);
-
-                // Обычные пары
-                regularLessons.forEach(l => {
-                    const data = getLessonData(l);
-                    const skipped = isLessonSkipped(l.id);
-                    const typeStr = data.type ? ` (${data.type})` : '';
-                    const hwHtml = skipped ? '' : renderHomeworkBlock(data.name);
-
-                    html += `
-                    <div class="lesson ${isCurrent ? 'current' : ''} ${skipped ? 'skipped' : ''}">
-                        <div class="lesson-time">
-                            ${data.time}
-                            ${isCurrent && !skipped ? '<span class="current-badge">СЕЙЧАС</span>' : ''}
-                            ${skipped ? '<span class="skipped-badge">ПРОПУСК</span>' : ''}
-                        </div>
-                        <div class="lesson-main">
-                            <div class="lesson-info">
-                                <div class="lesson-name">${data.name}${typeStr}</div>
-                                ${data.teacher ? `<div class="lesson-teacher">${data.teacher}</div>` : ''}
-                            </div>
-                            ${data.room ? `<div class="lesson-room">${data.room}</div>` : ''}
-                        </div>
-                        ${hwHtml}
-                    </div>`;
-                });
-
-                // Пары по неделям
-                if (weekLessons.length > 0) {
-                    html += `
-                    <div class="lesson-double ${isCurrent ? 'current' : ''}">
-                        <div class="lesson-double-time">
-                            ${time}
-                            ${isCurrent ? '<span class="current-badge">СЕЙЧАС</span>' : ''}
-                        </div>
-                        <div class="lesson-double-items">`;
-
-                    weekLessons.forEach(l => {
-                        const data = getLessonData(l);
-                        const skipped = isLessonSkipped(l.id);
-                        const typeStr = data.type ? ` (${data.type})` : '';
-                        const weekLabel = l.week === 'num' ? 'Числитель' : 'Знаменатель';
-                        const labelClass = l.week === 'num' ? 'num-label' : 'den-label';
-                        const itemClass = l.week === 'num' ? 'num-item' : 'den-item';
-                        const isInactive = l.week !== currentWeekType;
-                        const hwHtml = (skipped || isInactive) ? '' : renderHomeworkBlock(data.name);
-
-                        html += `
-                            <div class="lesson-double-item ${itemClass} ${isInactive ? 'inactive-item' : ''} ${skipped ? 'skipped' : ''}">
-                                <div class="lesson-double-item-main">
-                                    <div class="lesson-info">
-                                        <div class="group-label ${labelClass}">${weekLabel}${skipped ? ' • ПРОПУСК' : ''}</div>
-                                        <div class="lesson-name">${data.name}${typeStr}</div>
-                                        ${data.teacher ? `<div class="lesson-teacher">${data.teacher}</div>` : ''}
-                                    </div>
-                                    ${data.room ? `<div class="lesson-room">${data.room}</div>` : ''}
-                                </div>
-                                ${hwHtml}
-                            </div>`;
-                    });
-
-                    html += '</div></div>';
-                }
-
-                // Кыргызский язык
-                if (kgLessons.length > 0) {
-                    html += `
-                    <div class="lesson-double ${isCurrent ? 'current' : ''}">
-                        <div class="lesson-double-time">
-                            ${time}
-                            ${isCurrent ? '<span class="current-badge">СЕЙЧАС</span>' : ''}
-                        </div>
-                        <div class="lesson-double-items">`;
-
-                    kgLessons.forEach(l => {
-                        const data = getLessonData(l);
-                        const skipped = isLessonSkipped(l.id);
-                        const groupDisabled = isGroupDisabled(l);
-                        const typeStr = data.type ? ` (${data.type})` : '';
-                        const groupLabel = l.kgGroup === 'cont' ? 'Продолжающая группа' : 'Начинающая группа';
-                        const isDisabled = skipped || groupDisabled;
-                        const hwHtml = isDisabled ? '' : renderHomeworkBlock(data.name);
-
-                        html += `
-                            <div class="lesson-double-item ${isDisabled ? 'skipped' : ''}">
-                                <div class="lesson-double-item-main">
-                                    <div class="lesson-info">
-                                        <div class="group-label kg-label">${groupLabel}${skipped ? ' • ПРОПУСК' : ''}</div>
-                                        <div class="lesson-name">${data.name}${typeStr}</div>
-                                        ${data.teacher ? `<div class="lesson-teacher">${data.teacher}</div>` : ''}
-                                    </div>
-                                    ${data.room ? `<div class="lesson-room">${data.room}</div>` : ''}
-                                </div>
-                                ${hwHtml}
-                            </div>`;
-                    });
-
-                    html += '</div></div>';
-                }
-            });
-
-            return html;
-        }
-
-        // ===== VIEWS =====
-        function renderMainSchedule() {
-            const date = getDisplayDate();
-            const dayNum = date.getDay();
-            const dayLessons = schedule[dayNum] || [];
-
-            updateWeekTypeDisplay(date);
-
-            document.getElementById('dayTitle').textContent = dayNames[dayNum];
-            document.getElementById('dateInfo').textContent = `${date.getDate()} ${months[date.getMonth()]}`;
-
-            document.getElementById('scheduleContent').innerHTML = `
-                <div class="schedule-card" onclick="showFullSchedule()">
-                    ${renderLessons(dayLessons, date)}
-                </div>
-            `;
-        }
-
-        function showToday() {
-            isFullView = false;
-            isArchiveView = false;
-            showingTomorrow = false;
-
-            document.body.classList.remove('full-schedule');
-            document.body.classList.add('today-view');
-            document.getElementById('expandHint').classList.remove('hidden');
-            document.getElementById('hwFormSection').classList.remove('hidden');
-            document.getElementById('scheduleContent').classList.remove('hidden');
-            document.getElementById('archiveSection').classList.remove('active');
-            document.getElementById('tomorrowToggle').classList.remove('active', 'hidden');
-            document.getElementById('tomorrowToggle').textContent = 'завтра';
-
-            archiveOldHomeworks();
-            renderMainSchedule();
-        }
-
-        function showFullSchedule() {
-            isFullView = true;
-            isArchiveView = false;
-
-            document.body.classList.add('full-schedule');
-            document.body.classList.remove('today-view');
-            document.getElementById('expandHint').classList.add('hidden');
-            document.getElementById('hwFormSection').classList.add('hidden');
-            document.getElementById('scheduleContent').classList.remove('hidden');
-            document.getElementById('archiveSection').classList.remove('active');
-            document.getElementById('archiveBtnText').textContent = 'Архив';
-            document.getElementById('dayTitle').textContent = 'Расписание';
-            document.getElementById('dateInfo').textContent = 'Все дни недели';
-            document.getElementById('tomorrowToggle').classList.add('hidden');
-
-            const today = new Date();
-            const todayNum = today.getDay();
-
-            let html = '';
-            for (let i = 1; i <= 6; i++) {
-                const lessons = schedule[i] || [];
-                const isToday = i === todayNum;
-                const dayDate = new Date(today);
-                const diff = i - todayNum;
-                dayDate.setDate(today.getDate() + diff + (diff <= 0 && todayNum !== 0 ? 7 : 0));
-
-                html += `
-                    <div class="day-header">${dayNames[i]}${isToday ? ' (сегодня)' : ''}</div>
-                    <div class="schedule-card no-click">
-                        ${renderLessons(lessons, isToday ? today : dayDate)}
-                    </div>
-                `;
-            }
-
-            document.getElementById('scheduleContent').innerHTML = html;
-        }
-
-        function refreshView() {
-            if (isArchiveView) showArchive();
-            else if (isFullView) showFullSchedule();
-            else renderMainSchedule();
-        }
-
-        // ===== ARCHIVE =====
-        function toggleArchive() {
-            if (!isArchiveView) showArchive();
-            else showFullSchedule();
-        }
-
-        function showArchive() {
-            isArchiveView = true;
-            document.getElementById('scheduleContent').classList.add('hidden');
-            document.getElementById('archiveSection').classList.add('active');
-            document.getElementById('archiveBtnText').textContent = 'Расписание';
-            document.getElementById('dayTitle').textContent = 'Архив ДЗ';
-            document.getElementById('dateInfo').textContent = 'Управление заданиями';
-            document.getElementById('tomorrowToggle').classList.add('hidden');
-
-            const today = new Date(); today.setHours(0,0,0,0);
-
-            const upcomingHw = homeworks
-                .filter(hw => { const d = new Date(hw.date); d.setHours(0,0,0,0); return d >= today; })
-                .sort((a, b) => new Date(a.date) - new Date(b.date));
-
-            const pastHw = archivedHomeworks.sort((a, b) => new Date(b.date) - new Date(a.date));
-
-            document.getElementById('archiveSection').innerHTML = `
-                <div class="archive-tabs">
-                    <button class="archive-tab ${currentArchiveTab === 'upcoming' ? 'active' : ''}" onclick="switchArchiveTab('upcoming')">
-                        Предстоящие (${upcomingHw.length})
-                    </button>
-                    <button class="archive-tab ${currentArchiveTab === 'past' ? 'active' : ''}" onclick="switchArchiveTab('past')">
-                        Прошедшие (${pastHw.length})
-                    </button>
-                </div>
-                <div class="archive-content ${currentArchiveTab === 'upcoming' ? 'active' : ''}" id="upcomingContent">
-                    ${renderUpcomingHw(upcomingHw)}
-                </div>
-                <div class="archive-content ${currentArchiveTab === 'past' ? 'active' : ''}" id="pastContent">
-                    ${renderPastHw(pastHw)}
-                </div>
-            `;
-        }
-
-        function switchArchiveTab(tab) {
-            currentArchiveTab = tab;
-            document.querySelectorAll('.archive-tab').forEach((t, i) => {
-                t.classList.toggle('active', (tab === 'upcoming' && i === 0) || (tab === 'past' && i === 1));
-            });
-            document.querySelectorAll('.archive-content').forEach((c, i) => {
-                c.classList.toggle('active', (tab === 'upcoming' && i === 0) || (tab === 'past' && i === 1));
-            });
-        }
-
-        function renderUpcomingHw(hws) {
-            if (!hws.length) {
-                return `<div class="empty-archive"><div class="empty-archive-emoji">📝</div>Нет предстоящих заданий</div>`;
-            }
-
-            let html = `
-                <div class="archive-actions-bar">
-                    <button class="delete-all-btn" onclick="showDeleteAllAlert()">
-                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6h14z"/></svg>
-                        Удалить все
-                    </button>
-                </div>
-                <div class="archive-card">
-            `;
-
-            hws.forEach(hw => {
-                const days = getDaysUntil(hw.date);
-                const info = formatDaysLeft(days);
-                const status = hw.completed ? 'done' : 'pending';
-                const icon = hw.completed ? '✓' : '!';
-
-                html += `
-                <div class="archive-item">
-                    <div class="archive-status ${status}">${icon}</div>
-                    <div class="archive-info">
-                        <div class="archive-subject">${hw.subject}</div>
-                        <div class="archive-text">${hw.text}</div>
-                        <div class="archive-deadline ${info.urgent ? 'urgent' : ''}">${info.text}</div>
-                    </div>
-                    <div class="archive-actions">
-                        <button class="archive-action-btn delete" onclick="confirmDeleteHomework('${hw.id}')">×</button>
-                    </div>
-                </div>`;
-            });
-
-            return html + '</div>';
-        }
-
-        function renderPastHw(hws) {
-            if (!hws.length) {
-                return `<div class="empty-archive"><div class="empty-archive-emoji">📚</div>Архив пуст</div>`;
-            }
-
-            const grouped = {};
-            hws.forEach(hw => {
-                if (!grouped[hw.date]) grouped[hw.date] = [];
-                grouped[hw.date].push(hw);
-            });
-
-            let html = `
-                <div class="archive-actions-bar">
-                    <button class="delete-all-btn" onclick="showDeleteAllAlert()">
-                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6h14z"/></svg>
-                        Удалить все
-                    </button>
-                </div>
-            `;
-
-            Object.keys(grouped).sort((a, b) => new Date(b) - new Date(a)).forEach(date => {
-                const d = new Date(date);
-                html += `<div class="archive-card"><div class="archive-date">${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}</div>`;
-
-                grouped[date].forEach(hw => {
-                    const statusClass = hw.completed ? 'done' : 'missed';
-                    const icon = hw.completed ? '✓' : '✗';
-
-                    html += `
-                    <div class="archive-item">
-                        <div class="archive-status ${statusClass}">${icon}</div>
-                        <div class="archive-info">
-                            <div class="archive-subject">${hw.subject}</div>
-                            <div class="archive-text">${hw.text}</div>
-                        </div>
-                        <div class="archive-actions">
-                            <button class="archive-action-btn delete" onclick="confirmDeleteHomework('${hw.id}')">×</button>
-                        </div>
-                    </div>`;
-                });
-
-                html += '</div>';
-            });
-
-            return html;
-        }
-
-        // ===== INIT =====
-        function init() {
-            loadTheme();
-            archiveOldHomeworks();
-
-            const today = new Date();
-            calendarMonth = today.getMonth();
-            calendarYear = today.getFullYear();
-
-            updateWeekTypeDisplay(today);
-            showToday();
-        }
-
-        setInterval(() => {
-            if (!isFullView && !isArchiveView) renderMainSchedule();
-        }, 60000);
-
-        init();
-    </script>
+    });
+    return html;
+}
+
+function renderMainSchedule() {
+    const date = getDisplayDate();
+    const dayNum = date.getDay();
+    const dayLessons = schedule[dayNum] || [];
+    updateWeekTypeDisplay(date);
+    document.getElementById('dayTitle').textContent = dayNames[dayNum];
+    document.getElementById('dateInfo').textContent = date.getDate() + ' ' + months[date.getMonth()];
+    document.getElementById('scheduleContent').innerHTML = '<div class="schedule-card" onclick="showFullSchedule()">' + renderLessons(dayLessons, date) + '</div>';
+}
+
+function showToday() {
+    isFullView = false; isArchiveView = false; showingTomorrow = false;
+    document.body.classList.remove('full-schedule'); document.body.classList.add('today-view');
+    document.getElementById('expandHint').classList.remove('hidden');
+    document.getElementById('hwFormSection').classList.remove('hidden');
+    document.getElementById('scheduleContent').classList.remove('hidden');
+    document.getElementById('archiveSection').classList.remove('active');
+    document.getElementById('tomorrowToggle').classList.remove('active', 'hidden');
+    document.getElementById('tomorrowToggle').textContent = 'завтра';
+    archiveOldHomeworks();
+    renderMainSchedule();
+}
+
+function showFullSchedule() {
+    isFullView = true; isArchiveView = false;
+    document.body.classList.add('full-schedule'); document.body.classList.remove('today-view');
+    document.getElementById('expandHint').classList.add('hidden');
+    document.getElementById('hwFormSection').classList.add('hidden');
+    document.getElementById('scheduleContent').classList.remove('hidden');
+    document.getElementById('archiveSection').classList.remove('active');
+    document.getElementById('archiveBtnText').textContent = '📁 Архив';
+    document.getElementById('dayTitle').textContent = 'Расписание';
+    document.getElementById('dateInfo').textContent = 'Все дни недели';
+    document.getElementById('tomorrowToggle').classList.add('hidden');
+    
+    const today = new Date(), todayNum = today.getDay();
+    let html = '';
+    for (let i = 1; i <= 6; i++) {
+        const lessons = schedule[i] || [];
+        const isToday = i === todayNum;
+        const dayDate = new Date(today);
+        dayDate.setDate(today.getDate() + (i - todayNum + (i <= todayNum ? 7 : 0)));
+        html += '<div class="day-header">' + dayNames[i] + (isToday ? ' (сегодня)' : '') + '</div><div class="schedule-card no-click">' + renderLessons(lessons, isToday ? today : dayDate) + '</div>';
+    }
+    document.getElementById('scheduleContent').innerHTML = html;
+}
+
+function refreshView() { if (isArchiveView) showArchive(); else if (isFullView) showFullSchedule(); else renderMainSchedule(); }
+
+function toggleArchive() { if (!isArchiveView) showArchive(); else showFullSchedule(); }
+
+function showArchive() {
+    isArchiveView = true;
+    document.getElementById('scheduleContent').classList.add('hidden');
+    document.getElementById('archiveSection').classList.add('active');
+    document.getElementById('archiveBtnText').textContent = '📅 Расписание';
+    document.getElementById('dayTitle').textContent = '📁 Архив ДЗ';
+    document.getElementById('dateInfo').textContent = 'Управление заданиями';
+    document.getElementById('tomorrowToggle').classList.add('hidden');
+    
+    const today = new Date(); today.setHours(0,0,0,0);
+    const upcomingHw = homeworks.filter(hw => { const d = new Date(hw.date); d.setHours(0,0,0,0); return d >= today; }).sort((a, b) => new Date(a.date) - new Date(b.date));
+    const pastHw = archivedHomeworks.sort((a, b) => new Date(b.date) - new Date(a.date));
+    
+    document.getElementById('archiveSection').innerHTML = '<div class="archive-tabs"><button class="archive-tab ' + (currentArchiveTab === 'upcoming' ? 'active' : '') + '" onclick="switchArchiveTab(\'upcoming\')">📝 Предстоящие (' + upcomingHw.length + ')</button><button class="archive-tab ' + (currentArchiveTab === 'past' ? 'active' : '') + '" onclick="switchArchiveTab(\'past\')">📚 Прошедшие (' + pastHw.length + ')</button></div><div class="archive-content ' + (currentArchiveTab === 'upcoming' ? 'active' : '') + '" id="upcomingContent">' + renderUpcomingHw(upcomingHw) + '</div><div class="archive-content ' + (currentArchiveTab === 'past' ? 'active' : '') + '" id="pastContent">' + renderPastHw(pastHw) + '</div>';
+}
+
+function switchArchiveTab(tab) {
+    currentArchiveTab = tab;
+    document.querySelectorAll('.archive-tab').forEach((t, i) => t.classList.toggle('active', (tab === 'upcoming' && i === 0) || (tab === 'past' && i === 1)));
+    document.querySelectorAll('.archive-content').forEach((c, i) => c.classList.toggle('active', (tab === 'upcoming' && i === 0) || (tab === 'past' && i === 1)));
+}
+
+function renderUpcomingHw(hws) {
+    if (!hws.length) return '<div class="empty-archive"><div class="empty-archive-emoji">📝</div>Нет предстоящих заданий</div>';
+    let html = '<div class="archive-actions-bar"><button class="delete-all-btn" onclick="showDeleteAllAlert()">🗑️ Удалить все</button></div><div class="archive-card">';
+    hws.forEach(hw => {
+        const days = getDaysUntil(hw.date), info = formatDaysLeft(days);
+        const status = hw.completed ? 'done' : 'pending', icon = hw.completed ? '✓' : '!';
+        html += '<div class="archive-item"><div class="archive-status ' + status + '">' + icon + '</div><div class="archive-info"><div class="archive-subject">' + hw.subject + '</div><div class="archive-text">' + hw.text + '</div><div class="archive-deadline ' + (info.urgent ? 'urgent' : '') + '">' + info.text + '</div></div><div><button class="archive-action-btn" onclick="confirmDeleteHomework(\'' + hw.id + '\')">×</button></div></div>';
+    });
+    return html + '</div>';
+}
+
+function renderPastHw(hws) {
+    if (!hws.length) return '<div class="empty-archive"><div class="empty-archive-emoji">📚</div>Архив пуст</div>';
+    const grouped = {};
+    hws.forEach(hw => { if (!grouped[hw.date]) grouped[hw.date] = []; grouped[hw.date].push(hw); });
+    let html = '<div class="archive-actions-bar"><button class="delete-all-btn" onclick="showDeleteAllAlert()">🗑️ Удалить все</button></div>';
+    Object.keys(grouped).sort((a, b) => new Date(b) - new Date(a)).forEach(date => {
+        const d = new Date(date);
+        html += '<div class="archive-card"><div class="archive-date">📅 ' + d.getDate() + ' ' + months[d.getMonth()] + ' ' + d.getFullYear() + '</div>';
+        grouped[date].forEach(hw => {
+            const statusClass = hw.completed ? 'done' : 'missed', icon = hw.completed ? '✓' : '✗';
+            html += '<div class="archive-item"><div class="archive-status ' + statusClass + '">' + icon + '</div><div class="archive-info"><div class="archive-subject">' + hw.subject + '</div><div class="archive-text">' + hw.text + '</div></div><div><button class="archive-action-btn" onclick="confirmDeleteHomework(\'' + hw.id + '\')">×</button></div></div>';
+        });
+        html += '</div>';
+    });
+    return html;
+}
+
+// ИНИЦИАЛИЗАЦИЯ
+function init() {
+    loadTheme();
+    archiveOldHomeworks();
+    const today = new Date();
+    calendarMonth = today.getMonth();
+    calendarYear = today.getFullYear();
+    updateWeekTypeDisplay(today);
+    showToday();
+}
+
+setInterval(function() { if (!isFullView && !isArchiveView) renderMainSchedule(); }, 60000);
+
+init();
+</script>
 </body>
 </html>
-                    
