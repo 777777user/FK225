@@ -6,8 +6,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Расписание">
-    <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
-    <meta name="theme-color" content="#f2f2f7" media="(prefers-color-scheme: light)">
+    <meta name="theme-color" content="#f2f2f7">
     <title>Расписание</title>
     <style>
         * {
@@ -38,24 +37,7 @@
             --disabled-bg: rgba(255, 59, 48, 0.08);
         }
 
-        .dark-theme {
-            --bg: #000000;
-            --card-bg: #1c1c1e;
-            --text-primary: #ffffff;
-            --text-secondary: #8e8e93;
-            --border: #38383a;
-            --inactive-bg: #2c2c2e;
-            --accent: #0a84ff;
-            --current-lesson: rgba(48, 209, 88, 0.2);
-            --current-border: #30d158;
-            --hw-border: #ff9f0a;
-            --hw-bg: rgba(255, 159, 10, 0.15);
-            --numerator: #7d7aff;
-            --numerator-bg: rgba(125, 122, 255, 0.2);
-            --denominator: #da8fff;
-            --denominator-bg: rgba(218, 143, 255, 0.2);
-            --disabled-bg: rgba(255, 69, 58, 0.15);
-        }
+
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
@@ -141,10 +123,11 @@
             gap: 8px;
         }
 
-        /* Theme Toggle */
-        .theme-toggle {
+        /* Group Toggle */
+        .group-toggle {
             display: flex;
             align-items: center;
+            gap: 12px;
         }
 
         .toggle-switch {
@@ -157,12 +140,8 @@
             transition: background 0.3s;
         }
 
-        .dark-theme .toggle-switch {
-            background: #39393d;
-        }
-
         .toggle-switch.active {
-            background: #34c759;
+            background: var(--accent);
         }
 
         .toggle-knob {
@@ -179,6 +158,12 @@
 
         .toggle-switch.active .toggle-knob {
             transform: translateX(20px);
+        }
+
+        .toggle-label {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-primary);
         }
 
         /* Header */
@@ -383,9 +368,7 @@
             flex-shrink: 0;
         }
 
-        .dark-theme .lesson-room {
-            background: rgba(10, 132, 255, 0.2);
-        }
+
 
         /* Homework Block */
         .lesson-homework {
@@ -1390,6 +1373,34 @@
         .hidden {
             display: none !important;
         }
+
+        /* Morning lessons (7:30-09:00) */
+        .lesson-morning-badge {
+            font-size: 10px;
+            background: rgba(255, 149, 0, 0.15);
+            color: #b8620a;
+            padding: 2px 7px;
+            border-radius: 4px;
+            font-weight: 600;
+            letter-spacing: 0.2px;
+        }
+
+        .lesson-time-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .lesson.morning-lesson {
+            border-left: 3px solid #ff9500;
+            padding-left: 13px;
+            background: rgba(255, 149, 0, 0.04);
+        }
+
+        .lesson.morning-lesson.current {
+            border-left: 3px solid var(--current-border);
+        }
+
     </style>
 </head>
 <body class="today-view">
@@ -1407,11 +1418,6 @@
                     <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 8v13H3V8M1 3h22v5H1zM10 12h4" /></svg>
                     <span id="archiveBtnText">Архив</span>
                 </button>
-                <div class="theme-toggle">
-                    <div class="toggle-switch" id="themeToggle" onclick="toggleTheme()">
-                        <div class="toggle-knob"></div>
-                    </div>
-                </div>
             </div>
         </div>
 
@@ -1504,10 +1510,6 @@
     <div class="modal-overlay" id="settingsModal">
         <div class="modal">
             <div class="modal-title">Настройки</div>
-            <div class="settings-tabs">
-                <button class="settings-tab active" onclick="switchSettingsTab('lessons')">Пары</button>
-                <button class="settings-tab" onclick="switchSettingsTab('groups')">Группы</button>
-            </div>
             <div id="settingsContent"></div>
             <div class="modal-buttons" style="margin-top: 20px;">
                 <button class="modal-btn confirm" onclick="closeSettings()">Готово</button>
@@ -1515,34 +1517,7 @@
         </div>
     </div>
 
-    <!-- Edit Lesson Modal -->
-    <div class="modal-overlay" id="editLessonModal">
-        <div class="modal">
-            <div class="modal-title">Редактировать пару</div>
-            <div class="edit-form">
-                <div class="edit-field">
-                    <label>Название</label>
-                    <input type="text" id="editLessonName">
-                </div>
-                <div class="edit-field">
-                    <label>Преподаватель</label>
-                    <input type="text" id="editLessonTeacher">
-                </div>
-                <div class="edit-field">
-                    <label>Аудитория</label>
-                    <input type="text" id="editLessonRoom">
-                </div>
-                <div class="edit-field">
-                    <label>Время</label>
-                    <input type="text" id="editLessonTime" placeholder="07:30-09:00">
-                </div>
-            </div>
-            <div class="modal-buttons" style="margin-top: 20px;">
-                <button class="modal-btn cancel" onclick="closeEditLessonModal()">Отмена</button>
-                <button class="modal-btn confirm" onclick="saveLesson()">Сохранить</button>
-            </div>
-        </div>
-    </div>
+
 
     <!-- Delete All Alert -->
     <div class="custom-alert" id="deleteAllAlert">
@@ -1599,7 +1574,7 @@
             ],
             5: [
                 { id: '5-1', time: "07:30-09:00", name: "Физическая культура и спорт", type: "пр", teacher: "", room: "" },
-                { id: '5-2', time: "10:00-11:30", name: "Кыргызский язык", type: "пр", teacher: "Рыспаева Гулжамал Сапарбековна", room: "", kgGroup: "cont" },
+                { id: '5-2', time: "10:00-11:30", name: "Кыргызский язык", type: "пр", teacher: "Рыспаева Гулжамал Сапарбековна", room: "11/109", kgGroup: "cont" },
                 { id: '5-3', time: "10:00-11:30", name: "Кыргызский язык", type: "", teacher: "", room: "", kgGroup: "beg" },
                 { id: '5-4', time: "11:40-13:10", name: "Экономическая теория", type: "лекция", teacher: "Крыжанова Лариса Степановна", room: "3/204" },
                 { id: '5-5', time: "13:30-15:00", name: "Русский язык", type: "пр", teacher: "Дугина Ольга Васильевна", room: "3/208" }
@@ -1643,17 +1618,13 @@
         let currentWeekType = 'num';
         let currentWeekNumber = 1;
         let isFullView = false;
-        let isArchiveView = false;
-        let isDarkTheme = false;
         let showingTomorrow = false;
         let currentArchiveTab = 'upcoming';
-        let currentSettingsTab = 'lessons';
         let pendingHwText = '';
         let selectedDateType = 'next';
         let selectedCustomDate = null;
         let calendarMonth = new Date().getMonth();
         let calendarYear = new Date().getFullYear();
-        let editingLessonId = null;
 
         // ===== UTILS =====
         function save() {
@@ -1689,10 +1660,18 @@
             return mins >= start && mins <= end;
         }
 
+        function parseDateStr(dateStr) {
+            // Parse YYYY-MM-DD as local date to avoid timezone offset issues
+            const [y, m, d] = dateStr.split('-').map(Number);
+            const date = new Date(y, m - 1, d);
+            date.setHours(0, 0, 0, 0);
+            return date;
+        }
+
         function getDaysUntil(dateStr) {
             const today = new Date(); today.setHours(0, 0, 0, 0);
-            const target = new Date(dateStr); target.setHours(0, 0, 0, 0);
-            return Math.ceil((target - today) / (1000 * 60 * 60 * 24));
+            const target = parseDateStr(dateStr);
+            return Math.round((target - today) / (1000 * 60 * 60 * 24));
         }
 
         function formatDaysLeft(days) {
@@ -1704,7 +1683,7 @@
         }
 
         function formatFullDate(dateStr) {
-            const d = new Date(dateStr);
+            const d = parseDateStr(dateStr);
             return `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
         }
 
@@ -1723,32 +1702,12 @@
             return skippedLessons[id] === true;
         }
 
-        function isGroupDisabled(lesson) {
-            if (lesson.kgGroup === 'cont' && groupSettings.kyrgyz === 'beg') return true;
-            if (lesson.kgGroup === 'beg' && groupSettings.kyrgyz === 'cont') return true;
-            return false;
-        }
-
         function getSubjects() {
             const subjects = new Set();
             for (let d = 0; d <= 6; d++) {
                 (schedule[d] || []).forEach(l => subjects.add(l.name));
             }
             return Array.from(subjects).sort();
-        }
-
-        // ===== THEME =====
-        function toggleTheme() {
-            isDarkTheme = !isDarkTheme;
-            document.body.classList.toggle('dark-theme', isDarkTheme);
-            document.querySelectorAll('.toggle-switch').forEach(el => el.classList.toggle('active', isDarkTheme));
-            localStorage.setItem('darkTheme', isDarkTheme);
-        }
-
-        function loadTheme() {
-            isDarkTheme = localStorage.getItem('darkTheme') === 'true';
-            document.body.classList.toggle('dark-theme', isDarkTheme);
-            document.querySelectorAll('.toggle-switch').forEach(el => el.classList.toggle('active', isDarkTheme));
         }
 
         // ===== WEEK DISPLAY =====
@@ -1786,13 +1745,13 @@
         function archiveOldHomeworks() {
             const today = new Date(); today.setHours(0, 0, 0, 0);
             const toArchive = homeworks.filter(hw => {
-                const d = new Date(hw.date); d.setHours(0, 0, 0, 0);
+                const d = parseDateStr(hw.date);
                 return d < today;
             });
             if (toArchive.length) {
                 archivedHomeworks = [...archivedHomeworks, ...toArchive];
                 homeworks = homeworks.filter(hw => {
-                    const d = new Date(hw.date); d.setHours(0, 0, 0, 0);
+                    const d = parseDateStr(hw.date);
                     return d >= today;
                 });
                 save();
@@ -1839,8 +1798,14 @@
             document.getElementById('hwDetailModal').classList.remove('active');
         }
 
-        function renderHomeworkBlock(subjectName) {
-            const hws = getHomeworksForSubject(subjectName);
+        function renderHomeworkBlock(subjectName, lessonDate) {
+            // Only show HW whose deadline >= the date of this lesson
+            const refDate = lessonDate ? new Date(lessonDate.getFullYear(), lessonDate.getMonth(), lessonDate.getDate()) : new Date();
+            refDate.setHours(0, 0, 0, 0);
+            const hws = getHomeworksForSubject(subjectName).filter(hw => {
+                const d = parseDateStr(hw.date);
+                return d >= refDate;
+            });
             if (!hws.length) return '';
 
             return hws.map(hw => {
@@ -2082,7 +2047,6 @@
 
         // ===== SETTINGS =====
         function openSettings() {
-            currentSettingsTab = 'lessons';
             renderSettings();
             document.getElementById('settingsModal').classList.add('active');
         }
@@ -2092,141 +2056,37 @@
             refreshView();
         }
 
-        function switchSettingsTab(tab) {
-            currentSettingsTab = tab;
-            document.querySelectorAll('.settings-tab').forEach((t, i) => {
-                t.classList.toggle('active', (tab === 'lessons' && i === 0) || (tab === 'groups' && i === 1));
-            });
-            renderSettings();
-        }
-
         function renderSettings() {
             const container = document.getElementById('settingsContent');
+            const isCont = groupSettings.kyrgyz === 'cont';
 
-            if (currentSettingsTab === 'groups') {
-                container.innerHTML = `
-                        <div class="settings-list">
-                            <div class="settings-item">
-                                <div class="settings-item-info">
-                                    <div class="settings-item-name">Кыргызский язык</div>
-                                    <div class="settings-item-sub">Выберите вашу группу</div>
-                                </div>
-                            </div>
-                            <div class="settings-item ${groupSettings.kyrgyz === 'cont' ? '' : 'skipped'}" onclick="setGroup('kyrgyz', 'cont')">
-                                <div class="settings-item-info">
-                                    <div class="settings-item-name">Продолжающая группа</div>
-                                </div>
-                                ${groupSettings.kyrgyz === 'cont' ? '<div style="color:var(--success);font-weight:bold;">✓</div>' : ''}
-                            </div>
-                            <div class="settings-item ${groupSettings.kyrgyz === 'beg' ? '' : 'skipped'}" onclick="setGroup('kyrgyz', 'beg')">
-                                <div class="settings-item-info">
-                                    <div class="settings-item-name">Начинающая группа</div>
-                                </div>
-                                ${groupSettings.kyrgyz === 'beg' ? '<div style="color:var(--success);font-weight:bold;">✓</div>' : ''}
-                            </div>
+            container.innerHTML = `
+                <div style="padding: 8px 0;">
+                    <div style="font-size:13px;font-weight:600;color:var(--text-secondary);text-transform:uppercase;margin-bottom:16px;">Кыргызский язык</div>
+                    <div class="settings-item">
+                        <div class="settings-item-info">
+                            <div class="settings-item-name">${isCont ? 'Продолжающая группа' : 'Начинающая группа'}</div>
+                            <div class="settings-item-sub">Переключите для смены группы</div>
                         </div>
-                    `;
-                return;
-            }
-
-            let html = '<div class="settings-list">';
-            for (let d = 1; d <= 6; d++) {
-                const lessons = schedule[d] || [];
-                if (!lessons.length) continue;
-
-                html += `<div style="font-size:13px;font-weight:600;color:var(--text-secondary);padding:12px 0 6px;">${dayNames[d]}</div>`;
-
-                lessons.forEach(lesson => {
-                    const data = getLessonData(lesson);
-                    const skipped = isLessonSkipped(lesson.id);
-                    const weekBadge = lesson.week === 'num' ? ' (числ)' : lesson.week === 'den' ? ' (знам)' : '';
-                    const groupBadge = lesson.kgGroup === 'cont' ? ' (прод.)' : lesson.kgGroup === 'beg' ? ' (нач.)' : '';
-                    html += `
-                            <div class="settings-item ${skipped ? 'skipped' : ''}">
-                                <div class="settings-item-info">
-                                    <div class="settings-item-name">${data.name}${weekBadge}${groupBadge}</div>
-                                    <div class="settings-item-sub">${data.time} • ${data.teacher || 'Преподаватель не указан'}${data.room ? ' • ' + data.room : ''}</div>
-                                </div>
-                                <div class="settings-item-actions">
-                                    <button class="settings-action-btn skip ${skipped ? 'active' : ''}" onclick="toggleSkipLesson('${lesson.id}')" title="Пропустить">
-                                        ✕
-                                    </button>
-                                    <button class="settings-action-btn edit" onclick="openEditLesson('${lesson.id}')" title="Редактировать">
-                                        ✎
-                                    </button>
-                                </div>
+                        <div class="group-toggle">
+                            <span class="toggle-label" style="color:var(--text-secondary);font-size:12px;">Нач.</span>
+                            <div class="toggle-switch ${isCont ? 'active' : ''}" onclick="toggleKyrgyzGroup()">
+                                <div class="toggle-knob"></div>
                             </div>
-                        `;
-                });
-            }
-            html += '</div>';
-            container.innerHTML = html;
+                            <span class="toggle-label" style="color:var(--text-secondary);font-size:12px;">Прод.</span>
+                        </div>
+                    </div>
+                </div>
+            `;
         }
 
-        function setGroup(type, value) {
-            if (groupSettings[type] === value) {
-                delete groupSettings[type];
+        function toggleKyrgyzGroup() {
+            if (groupSettings.kyrgyz === 'cont') {
+                groupSettings.kyrgyz = 'beg';
             } else {
-                groupSettings[type] = value;
+                groupSettings.kyrgyz = 'cont';
             }
             save();
-            renderSettings();
-        }
-
-        function toggleSkipLesson(id) {
-            skippedLessons[id] = !skippedLessons[id];
-            if (!skippedLessons[id]) delete skippedLessons[id];
-            save();
-            renderSettings();
-        }
-
-        function openEditLesson(id) {
-            editingLessonId = id;
-
-            let lesson = null;
-            for (let d = 0; d <= 6; d++) {
-                const found = (schedule[d] || []).find(l => l.id === id);
-                if (found) { lesson = found; break; }
-            }
-
-            if (!lesson) return;
-
-            const data = getLessonData(lesson);
-            document.getElementById('editLessonName').value = data.name;
-            document.getElementById('editLessonTeacher').value = data.teacher || '';
-            document.getElementById('editLessonRoom').value = data.room || '';
-            document.getElementById('editLessonTime').value = data.time;
-
-            document.getElementById('editLessonModal').classList.add('active');
-        }
-
-        function closeEditLessonModal() {
-            document.getElementById('editLessonModal').classList.remove('active');
-            editingLessonId = null;
-        }
-
-        function saveLesson() {
-            if (!editingLessonId) return;
-
-            const name = document.getElementById('editLessonName').value.trim();
-            const teacher = document.getElementById('editLessonTeacher').value.trim();
-            const room = document.getElementById('editLessonRoom').value.trim();
-            const time = document.getElementById('editLessonTime').value.trim();
-
-            if (!name || !time) {
-                showAlert({
-                    icon: '⚠️',
-                    title: 'Ошибка',
-                    message: 'Название и время обязательны',
-                    buttons: [{ text: 'OK', action: 'hideAlert()' }]
-                });
-                return;
-            }
-
-            lessonEdits[editingLessonId] = { name, teacher, room, time };
-            save();
-
-            closeEditLessonModal();
             renderSettings();
         }
 
@@ -2331,14 +2191,16 @@
                     const data = getLessonData(l);
                     const skipped = isLessonSkipped(l.id);
                     const typeStr = data.type ? ` (${data.type})` : '';
-                    const hwHtml = skipped ? '' : renderHomeworkBlock(data.name);
+                    const hwHtml = skipped ? '' : renderHomeworkBlock(data.name, date);
 
+                    const isMorning = data.time && data.time.startsWith('07:30');
                     html += `
-                        <div class="lesson ${isCurrent ? 'current' : ''} ${skipped ? 'skipped' : ''}">
+                        <div class="lesson ${isCurrent ? 'current' : ''} ${skipped ? 'skipped' : ''} ${isMorning && !skipped && !isCurrent ? 'morning-lesson' : ''}">
                             <div class="lesson-time">
                                 ${data.time}
                                 ${isCurrent && !skipped ? '<span class="current-badge">СЕЙЧАС</span>' : ''}
                                 ${skipped ? '<span class="skipped-badge">ПРОПУСК</span>' : ''}
+                                ${isMorning && !skipped && !isCurrent ? '<span class="lesson-morning-badge">🌅 УТРО</span>' : ''}
                             </div>
                             <div class="lesson-main">
                                 <div class="lesson-info">
@@ -2369,7 +2231,7 @@
                         const labelClass = l.week === 'num' ? 'num-label' : 'den-label';
                         const itemClass = l.week === 'num' ? 'num-item' : 'den-item';
                         const isInactive = l.week !== currentWeekType;
-                        const hwHtml = (skipped || isInactive) ? '' : renderHomeworkBlock(data.name);
+                        const hwHtml = (skipped || isInactive) ? '' : renderHomeworkBlock(data.name, date);
 
                         html += `
                                 <div class="lesson-double-item ${itemClass} ${isInactive ? 'inactive-item' : ''} ${skipped ? 'skipped' : ''}">
@@ -2390,7 +2252,44 @@
 
                 // Кыргызский язык
                 if (kgLessons.length > 0) {
-                    html += `
+                    // Filter: if group is selected, only show selected group. Otherwise show all.
+                    const selectedGroup = groupSettings.kyrgyz;
+                    const visibleKgLessons = selectedGroup 
+                        ? kgLessons.filter(l => l.kgGroup === selectedGroup)
+                        : kgLessons;
+                    
+                    if (visibleKgLessons.length === 0) return;
+                    
+                    // If only one lesson visible after filtering, render as regular lesson
+                    if (visibleKgLessons.length === 1) {
+                        visibleKgLessons.forEach(l => {
+                            const data = getLessonData(l);
+                            const skipped = isLessonSkipped(l.id);
+                            const typeStr = data.type ? ` (${data.type})` : '';
+                            const hwHtml = skipped ? '' : renderHomeworkBlock(data.name, date);
+
+                            const isMorningKg = data.time && data.time.startsWith('07:30');
+                            html += `
+                            <div class="lesson ${isCurrent ? 'current' : ''} ${skipped ? 'skipped' : ''} ${isMorningKg && !skipped && !isCurrent ? 'morning-lesson' : ''}">
+                                <div class="lesson-time">
+                                    ${data.time}
+                                    ${isCurrent && !skipped ? '<span class="current-badge">СЕЙЧАС</span>' : ''}
+                                    ${skipped ? '<span class="skipped-badge">ПРОПУСК</span>' : ''}
+                                    ${isMorningKg && !skipped && !isCurrent ? '<span class="lesson-morning-badge">🌅 УТРО</span>' : ''}
+                                </div>
+                                <div class="lesson-main">
+                                    <div class="lesson-info">
+                                        <div class="lesson-name">${data.name}${typeStr}</div>
+                                        ${data.teacher ? `<div class="lesson-teacher">${data.teacher}</div>` : ''}
+                                    </div>
+                                    ${data.room ? `<div class="lesson-room">${data.room}</div>` : ''}
+                                </div>
+                                ${hwHtml}
+                            </div>`;
+                        });
+                    } else {
+                        // Show both groups (no group selected)
+                        html += `
                         <div class="lesson-double ${isCurrent ? 'current' : ''}">
                             <div class="lesson-double-time">
                                 ${time}
@@ -2398,30 +2297,29 @@
                             </div>
                             <div class="lesson-double-items">`;
 
-                    kgLessons.forEach(l => {
-                        const data = getLessonData(l);
-                        const skipped = isLessonSkipped(l.id);
-                        const groupDisabled = isGroupDisabled(l);
-                        const typeStr = data.type ? ` (${data.type})` : '';
-                        const groupLabel = l.kgGroup === 'cont' ? 'Продолжающая группа' : 'Начинающая группа';
-                        const isDisabled = skipped || groupDisabled;
-                        const hwHtml = isDisabled ? '' : renderHomeworkBlock(data.name);
+                        visibleKgLessons.forEach(l => {
+                            const data = getLessonData(l);
+                            const skipped = isLessonSkipped(l.id);
+                            const typeStr = data.type ? ` (${data.type})` : '';
+                            const groupLabel = l.kgGroup === 'cont' ? 'Продолжающая группа' : 'Начинающая группа';
+                            const hwHtml = skipped ? '' : renderHomeworkBlock(data.name, date);
 
-                        html += `
-                                <div class="lesson-double-item ${isDisabled ? 'skipped' : ''}">
-                                    <div class="lesson-double-item-main">
-                                        <div class="lesson-info">
-                                            <div class="group-label kg-label">${groupLabel}${skipped ? ' • ПРОПУСК' : ''}</div>
-                                            <div class="lesson-name">${data.name}${typeStr}</div>
-                                            ${data.teacher ? `<div class="lesson-teacher">${data.teacher}</div>` : ''}
+                            html += `
+                                    <div class="lesson-double-item ${skipped ? 'skipped' : ''}">
+                                        <div class="lesson-double-item-main">
+                                            <div class="lesson-info">
+                                                <div class="group-label kg-label">${groupLabel}${skipped ? ' • ПРОПУСК' : ''}</div>
+                                                <div class="lesson-name">${data.name}${typeStr}</div>
+                                                ${data.teacher ? `<div class="lesson-teacher">${data.teacher}</div>` : ''}
+                                            </div>
+                                            ${data.room ? `<div class="lesson-room">${data.room}</div>` : ''}
                                         </div>
-                                        ${data.room ? `<div class="lesson-room">${data.room}</div>` : ''}
-                                    </div>
-                                    ${hwHtml}
-                                </div>`;
-                    });
+                                        ${hwHtml}
+                                    </div>`;
+                        });
 
-                    html += '</div></div>';
+                        html += '</div></div>';
+                    }
                 }
             });
 
@@ -2525,10 +2423,10 @@
             const today = new Date(); today.setHours(0, 0, 0, 0);
 
             const upcomingHw = homeworks
-                .filter(hw => { const d = new Date(hw.date); d.setHours(0, 0, 0, 0); return d >= today; })
-                .sort((a, b) => new Date(a.date) - new Date(b.date));
+                .filter(hw => { const d = parseDateStr(hw.date); return d >= today; })
+                .sort((a, b) => parseDateStr(a.date) - parseDateStr(b.date));
 
-            const pastHw = archivedHomeworks.sort((a, b) => new Date(b.date) - new Date(a.date));
+            const pastHw = archivedHomeworks.sort((a, b) => parseDateStr(b.date) - parseDateStr(a.date));
 
             document.getElementById('archiveSection').innerHTML = `
                     <div class="archive-tabs">
@@ -2616,8 +2514,8 @@
                     </div>
                 `;
 
-            Object.keys(grouped).sort((a, b) => new Date(b) - new Date(a)).forEach(date => {
-                const d = new Date(date);
+            Object.keys(grouped).sort((a, b) => parseDateStr(b) - parseDateStr(a)).forEach(date => {
+                const d = parseDateStr(date);
                 html += `<div class="archive-card"><div class="archive-date">${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}</div>`;
 
                 grouped[date].forEach(hw => {
@@ -2645,7 +2543,6 @@
 
         // ===== INIT =====
         function init() {
-            loadTheme();
             archiveOldHomeworks();
 
             const today = new Date();
