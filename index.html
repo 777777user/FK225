@@ -1742,18 +1742,47 @@
         }
 
         // ===== HOMEWORKS =====
+        function getLessonEndTime(subjectName, dateStr) {
+            // Find the end time of the subject lesson on a given date
+            const d = parseDateStr(dateStr);
+            const dayNum = d.getDay();
+            const lessons = schedule[dayNum] || [];
+            const weekInfo = getAcademicWeekInfo(d);
+            // Find matching lesson for this subject on this day/week
+            const lesson = lessons.find(l =>
+                getLessonData(l).name === subjectName &&
+                (!l.week || l.week === weekInfo.type)
+            );
+            if (!lesson) return null;
+            const data = getLessonData(lesson);
+            // Parse end time e.g. "07:30-09:00" -> 9*60+0 = 540
+            const parts = data.time.split('-');
+            if (parts.length < 2) return null;
+            const [eH, eM] = parts[1].split(':').map(Number);
+            return eH * 60 + eM; // minutes since midnight
+        }
+
         function archiveOldHomeworks() {
-            const today = new Date(); today.setHours(0, 0, 0, 0);
+            const now = new Date();
+            const todayMins = now.getHours() * 60 + now.getMinutes();
+            const todayDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
             const toArchive = homeworks.filter(hw => {
-                const d = parseDateStr(hw.date);
-                return d < today;
+                const deadlineDate = parseDateStr(hw.date);
+                if (deadlineDate < todayDate) return true; // past days — archive
+                if (deadlineDate.getTime() === todayDate.getTime()) {
+                    // today — archive only after lesson end time
+                    const endMins = getLessonEndTime(hw.subject, hw.date);
+                    if (endMins === null) return true; // no lesson found, archive
+                    return todayMins >= endMins;
+                }
+                return false;
             });
+
             if (toArchive.length) {
                 archivedHomeworks = [...archivedHomeworks, ...toArchive];
-                homeworks = homeworks.filter(hw => {
-                    const d = parseDateStr(hw.date);
-                    return d >= today;
-                });
+                const archiveIds = new Set(toArchive.map(h => h.id));
+                homeworks = homeworks.filter(hw => !archiveIds.has(hw.id));
                 save();
             }
         }
@@ -1798,14 +1827,8 @@
             document.getElementById('hwDetailModal').classList.remove('active');
         }
 
-        function renderHomeworkBlock(subjectName, lessonDate) {
-            // Only show HW whose deadline >= the date of this lesson
-            const refDate = lessonDate ? new Date(lessonDate.getFullYear(), lessonDate.getMonth(), lessonDate.getDate()) : new Date();
-            refDate.setHours(0, 0, 0, 0);
-            const hws = getHomeworksForSubject(subjectName).filter(hw => {
-                const d = parseDateStr(hw.date);
-                return d >= refDate;
-            });
+        function renderHomeworkBlock(subjectName) {
+            const hws = getHomeworksForSubject(subjectName);
             if (!hws.length) return '';
 
             return hws.map(hw => {
@@ -2020,13 +2043,21 @@
                     showAlert({ icon: '⚠️', title: 'Ошибка', message: 'Не найдена следующая пара', buttons: [{ text: 'OK', action: 'hideAlert()' }] });
                     return;
                 }
-                deadline = nextDate.toISOString().split('T')[0];
+                // Save as local YYYY-MM-DD to avoid timezone issues
+                const y = nextDate.getFullYear();
+                const m = String(nextDate.getMonth() + 1).padStart(2, '0');
+                const d = String(nextDate.getDate()).padStart(2, '0');
+                deadline = `${y}-${m}-${d}`;
             } else {
                 if (!selectedCustomDate) {
                     showAlert({ icon: '⚠️', title: 'Выберите дату', message: 'Нажмите на оранжевый день', buttons: [{ text: 'OK', action: 'hideAlert()' }] });
                     return;
                 }
-                deadline = new Date(selectedCustomDate).toISOString().split('T')[0];
+                const cd = new Date(selectedCustomDate);
+                const y = cd.getFullYear();
+                const m = String(cd.getMonth() + 1).padStart(2, '0');
+                const d = String(cd.getDate()).padStart(2, '0');
+                deadline = `${y}-${m}-${d}`;
             }
 
             homeworks.push({
@@ -2191,7 +2222,7 @@
                     const data = getLessonData(l);
                     const skipped = isLessonSkipped(l.id);
                     const typeStr = data.type ? ` (${data.type})` : '';
-                    const hwHtml = skipped ? '' : renderHomeworkBlock(data.name, date);
+                    const hwHtml = skipped ? '' : renderHomeworkBlock(data.name);
 
                     const isMorning = data.time && data.time.startsWith('07:30');
                     html += `
@@ -2231,7 +2262,7 @@
                         const labelClass = l.week === 'num' ? 'num-label' : 'den-label';
                         const itemClass = l.week === 'num' ? 'num-item' : 'den-item';
                         const isInactive = l.week !== currentWeekType;
-                        const hwHtml = (skipped || isInactive) ? '' : renderHomeworkBlock(data.name, date);
+                        const hwHtml = (skipped || isInactive) ? '' : renderHomeworkBlock(data.name);
 
                         html += `
                                 <div class="lesson-double-item ${itemClass} ${isInactive ? 'inactive-item' : ''} ${skipped ? 'skipped' : ''}">
@@ -2266,7 +2297,7 @@
                             const data = getLessonData(l);
                             const skipped = isLessonSkipped(l.id);
                             const typeStr = data.type ? ` (${data.type})` : '';
-                            const hwHtml = skipped ? '' : renderHomeworkBlock(data.name, date);
+                            const hwHtml = skipped ? '' : renderHomeworkBlock(data.name);
 
                             const isMorningKg = data.time && data.time.startsWith('07:30');
                             html += `
@@ -2302,7 +2333,7 @@
                             const skipped = isLessonSkipped(l.id);
                             const typeStr = data.type ? ` (${data.type})` : '';
                             const groupLabel = l.kgGroup === 'cont' ? 'Продолжающая группа' : 'Начинающая группа';
-                            const hwHtml = skipped ? '' : renderHomeworkBlock(data.name, date);
+                            const hwHtml = skipped ? '' : renderHomeworkBlock(data.name);
 
                             html += `
                                     <div class="lesson-double-item ${skipped ? 'skipped' : ''}">
@@ -2554,6 +2585,7 @@
         }
 
         setInterval(() => {
+            archiveOldHomeworks();
             if (!isFullView && !isArchiveView) renderMainSchedule();
         }, 60000);
 
