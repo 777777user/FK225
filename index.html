@@ -1401,6 +1401,88 @@
             border-left: 3px solid var(--current-border);
         }
 
+        /* HW Filter Bar */
+        .hw-filter-bar {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .hw-filter-select {
+            flex: 1;
+            padding: 10px 12px;
+            border: 1.5px solid var(--border);
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 500;
+            background: var(--card-bg);
+            color: var(--text-primary);
+            font-family: inherit;
+            -webkit-appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%238e8e93' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10l-5 5z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            padding-right: 28px;
+        }
+
+        .hw-filter-select:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        /* Archive date block (right side in upcoming) */
+        .archive-date-block {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 4px;
+            flex-shrink: 0;
+            min-width: 70px;
+        }
+
+        .archive-date-day {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-primary);
+            text-align: right;
+        }
+
+        .archive-week-badge {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--accent);
+            background: rgba(0, 122, 255, 0.1);
+            padding: 2px 7px;
+            border-radius: 6px;
+        }
+
+        /* Archive date header (in past) */
+        .archive-date-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+
+        .archive-date {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        /* HW item layout fix for date block */
+        .archive-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            padding: 12px 0;
+            border-bottom: 0.5px solid var(--border);
+        }
+
+        .archive-item:last-child {
+            border-bottom: none;
+        }
+
     </style>
 </head>
 <body class="today-view">
@@ -1416,7 +1498,7 @@
                 </button>
                 <button class="archive-btn" onclick="toggleArchive()">
                     <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 8v13H3V8M1 3h22v5H1zM10 12h4" /></svg>
-                    <span id="archiveBtnText">Архив</span>
+                    <span id="archiveBtnText">ДЗ</span>
                 </button>
             </div>
         </div>
@@ -2186,7 +2268,7 @@
             archivedHomeworks = archivedHomeworks.filter(h => h.id !== id);
             save();
             hideAlert();
-            if (isArchiveView) showArchive();
+            if (isArchiveView) renderDzSection();
             else refreshView();
         }
 
@@ -2246,7 +2328,34 @@
 
                 // Пары по неделям
                 if (weekLessons.length > 0) {
-                    html += `
+                    // If only one week-lesson (already filtered for current week in main view), show as regular
+                    if (weekLessons.length === 1) {
+                        const l = weekLessons[0];
+                        const data = getLessonData(l);
+                        const skipped = isLessonSkipped(l.id);
+                        const typeStr = data.type ? ` (${data.type})` : '';
+                        const isMorning = data.time && data.time.startsWith('07:30');
+                        const hwHtml = skipped ? '' : renderHomeworkBlock(data.name);
+                        html += `
+                            <div class="lesson ${isCurrent ? 'current' : ''} ${skipped ? 'skipped' : ''} ${isMorning && !skipped && !isCurrent ? 'morning-lesson' : ''}">
+                                <div class="lesson-time">
+                                    ${data.time}
+                                    ${isCurrent && !skipped ? '<span class="current-badge">СЕЙЧАС</span>' : ''}
+                                    ${skipped ? '<span class="skipped-badge">ПРОПУСК</span>' : ''}
+                                    ${isMorning && !skipped && !isCurrent ? '<span class="lesson-morning-badge">🌅 УТРО</span>' : ''}
+                                </div>
+                                <div class="lesson-main">
+                                    <div class="lesson-info">
+                                        <div class="lesson-name">${data.name}${typeStr}</div>
+                                        ${data.teacher ? `<div class="lesson-teacher">${data.teacher}</div>` : ''}
+                                    </div>
+                                    ${data.room ? `<div class="lesson-room">${data.room}</div>` : ''}
+                                </div>
+                                ${hwHtml}
+                            </div>`;
+                    } else {
+                        // Both num+den visible (full schedule view)
+                        html += `
                         <div class="lesson-double ${isCurrent ? 'current' : ''}">
                             <div class="lesson-double-time">
                                 ${time}
@@ -2254,31 +2363,32 @@
                             </div>
                             <div class="lesson-double-items">`;
 
-                    weekLessons.forEach(l => {
-                        const data = getLessonData(l);
-                        const skipped = isLessonSkipped(l.id);
-                        const typeStr = data.type ? ` (${data.type})` : '';
-                        const weekLabel = l.week === 'num' ? 'Числитель' : 'Знаменатель';
-                        const labelClass = l.week === 'num' ? 'num-label' : 'den-label';
-                        const itemClass = l.week === 'num' ? 'num-item' : 'den-item';
-                        const isInactive = l.week !== currentWeekType;
-                        const hwHtml = (skipped || isInactive) ? '' : renderHomeworkBlock(data.name);
+                        weekLessons.forEach(l => {
+                            const data = getLessonData(l);
+                            const skipped = isLessonSkipped(l.id);
+                            const typeStr = data.type ? ` (${data.type})` : '';
+                            const weekLabel = l.week === 'num' ? 'Числитель' : 'Знаменатель';
+                            const labelClass = l.week === 'num' ? 'num-label' : 'den-label';
+                            const itemClass = l.week === 'num' ? 'num-item' : 'den-item';
+                            const isInactive = l.week !== currentWeekType;
+                            const hwHtml = (skipped || isInactive) ? '' : renderHomeworkBlock(data.name);
 
-                        html += `
-                                <div class="lesson-double-item ${itemClass} ${isInactive ? 'inactive-item' : ''} ${skipped ? 'skipped' : ''}">
-                                    <div class="lesson-double-item-main">
-                                        <div class="lesson-info">
-                                            <div class="group-label ${labelClass}">${weekLabel}${skipped ? ' • ПРОПУСК' : ''}</div>
-                                            <div class="lesson-name">${data.name}${typeStr}</div>
-                                            ${data.teacher ? `<div class="lesson-teacher">${data.teacher}</div>` : ''}
+                            html += `
+                                    <div class="lesson-double-item ${itemClass} ${isInactive ? 'inactive-item' : ''} ${skipped ? 'skipped' : ''}">
+                                        <div class="lesson-double-item-main">
+                                            <div class="lesson-info">
+                                                <div class="group-label ${labelClass}">${weekLabel}${skipped ? ' • ПРОПУСК' : ''}</div>
+                                                <div class="lesson-name">${data.name}${typeStr}</div>
+                                                ${data.teacher ? `<div class="lesson-teacher">${data.teacher}</div>` : ''}
+                                            </div>
+                                            ${data.room ? `<div class="lesson-room">${data.room}</div>` : ''}
                                         </div>
-                                        ${data.room ? `<div class="lesson-room">${data.room}</div>` : ''}
-                                    </div>
-                                    ${hwHtml}
-                                </div>`;
-                    });
+                                        ${hwHtml}
+                                    </div>`;
+                        });
 
-                    html += '</div></div>';
+                        html += '</div></div>';
+                    }
                 }
 
                 // Кыргызский язык
@@ -2361,9 +2471,14 @@
         function renderMainSchedule() {
             const date = getDisplayDate();
             const dayNum = date.getDay();
-            const dayLessons = schedule[dayNum] || [];
+            const weekInfo = getAcademicWeekInfo(date);
+            const weekType = weekInfo.type;
 
             updateWeekTypeDisplay(date);
+
+            // Filter out lessons that don't apply to the current week
+            const allLessons = schedule[dayNum] || [];
+            const dayLessons = allLessons.filter(l => !l.week || l.week === weekType);
 
             document.getElementById('dayTitle').textContent = dayNames[dayNum];
             document.getElementById('dateInfo').textContent = `${date.getDate()} ${months[date.getMonth()]}`;
@@ -2403,7 +2518,7 @@
             document.getElementById('hwFormSection').classList.add('hidden');
             document.getElementById('scheduleContent').classList.remove('hidden');
             document.getElementById('archiveSection').classList.remove('active');
-            document.getElementById('archiveBtnText').textContent = 'Архив';
+            document.getElementById('archiveBtnText').textContent = 'ДЗ';
             document.getElementById('dayTitle').textContent = 'Расписание';
             document.getElementById('dateInfo').textContent = 'Все дни недели';
             document.getElementById('tomorrowToggle').classList.add('hidden');
@@ -2431,12 +2546,30 @@
         }
 
         function refreshView() {
-            if (isArchiveView) showArchive();
+            if (isArchiveView) renderDzSection();
             else if (isFullView) showFullSchedule();
             else renderMainSchedule();
         }
 
-        // ===== ARCHIVE =====
+        // ===== ДЗ / ARCHIVE =====
+        let hwFilterSubject = '';
+
+        function setHwFilter(type, value) {
+            if (type === 'subject') hwFilterSubject = value;
+            renderDzSection();
+        }
+        const shortDayNames = ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'];
+
+        function getWeekLabel(dateStr) {
+            const d = parseDateStr(dateStr);
+            return getAcademicWeekInfo(d).type === 'num' ? 'Числ.' : 'Знам.';
+        }
+
+        function formatDateWithDay(dateStr) {
+            const d = parseDateStr(dateStr);
+            return shortDayNames[d.getDay()] + ', ' + d.getDate() + ' ' + months[d.getMonth()];
+        }
+
         function toggleArchive() {
             if (!isArchiveView) showArchive();
             else showFullSchedule();
@@ -2447,128 +2580,103 @@
             document.getElementById('scheduleContent').classList.add('hidden');
             document.getElementById('archiveSection').classList.add('active');
             document.getElementById('archiveBtnText').textContent = 'Расписание';
-            document.getElementById('dayTitle').textContent = 'Архив ДЗ';
-            document.getElementById('dateInfo').textContent = 'Управление заданиями';
+            document.getElementById('dayTitle').textContent = 'Домашние задания';
+            document.getElementById('dateInfo').textContent = 'Все задания';
             document.getElementById('tomorrowToggle').classList.add('hidden');
+            renderDzSection();
+        }
 
+        function renderDzSection() {
             const today = new Date(); today.setHours(0, 0, 0, 0);
-
             const upcomingHw = homeworks
                 .filter(hw => { const d = parseDateStr(hw.date); return d >= today; })
                 .sort((a, b) => parseDateStr(a.date) - parseDateStr(b.date));
+            const pastHw = [...archivedHomeworks].sort((a, b) => parseDateStr(b.date) - parseDateStr(a.date));
 
-            const pastHw = archivedHomeworks.sort((a, b) => parseDateStr(b.date) - parseDateStr(a.date));
+            // All subjects from schedule
+            const allSubjects = getSubjects();
 
-            document.getElementById('archiveSection').innerHTML = `
-                    <div class="archive-tabs">
-                        <button class="archive-tab ${currentArchiveTab === 'upcoming' ? 'active' : ''}" onclick="switchArchiveTab('upcoming')">
-                            Предстоящие (${upcomingHw.length})
-                        </button>
-                        <button class="archive-tab ${currentArchiveTab === 'past' ? 'active' : ''}" onclick="switchArchiveTab('past')">
-                            Прошедшие (${pastHw.length})
-                        </button>
-                    </div>
-                    <div class="archive-content ${currentArchiveTab === 'upcoming' ? 'active' : ''}" id="upcomingContent">
-                        ${renderUpcomingHw(upcomingHw)}
-                    </div>
-                    <div class="archive-content ${currentArchiveTab === 'past' ? 'active' : ''}" id="pastContent">
-                        ${renderPastHw(pastHw)}
-                    </div>
-                `;
+            const filterFn = (hws) => hws.filter(hw => {
+                if (hwFilterSubject && hw.subject !== hwFilterSubject) return false;
+                return true;
+            });
+
+            const filteredUpcoming = filterFn(upcomingHw);
+            const filteredPast = filterFn(pastHw);
+
+            const subjectOptions = ['<option value="">Все предметы</option>']
+                .concat(allSubjects.map(s => `<option value="${s}"${hwFilterSubject === s ? ' selected' : ''}>${s}</option>`))
+                .join('');
+
+            const section = document.getElementById('archiveSection');
+            section.innerHTML = `
+                <div class="hw-filter-bar">
+                    <select class="hw-filter-select" onchange="setHwFilter('subject', this.value)">${subjectOptions}</select>
+                </div>
+                <div class="archive-tabs">
+                    <button class="archive-tab ${currentArchiveTab === 'upcoming' ? 'active' : ''}" onclick="switchArchiveTab('upcoming')">Предстоящие (${filteredUpcoming.length})</button>
+                    <button class="archive-tab ${currentArchiveTab === 'past' ? 'active' : ''}" onclick="switchArchiveTab('past')">Прошедшие (${filteredPast.length})</button>
+                </div>
+                <div class="archive-content ${currentArchiveTab === 'upcoming' ? 'active' : ''}" id="upcomingContent">${renderUpcomingHw(filteredUpcoming)}</div>
+                <div class="archive-content ${currentArchiveTab === 'past' ? 'active' : ''}" id="pastContent">${renderPastHw(filteredPast)}</div>
+            `;
         }
 
         function switchArchiveTab(tab) {
             currentArchiveTab = tab;
-            document.querySelectorAll('.archive-tab').forEach((t, i) => {
-                t.classList.toggle('active', (tab === 'upcoming' && i === 0) || (tab === 'past' && i === 1));
-            });
-            document.querySelectorAll('.archive-content').forEach((c, i) => {
-                c.classList.toggle('active', (tab === 'upcoming' && i === 0) || (tab === 'past' && i === 1));
-            });
+            renderDzSection();
         }
 
         function renderUpcomingHw(hws) {
-            if (!hws.length) {
-                return `<div class="empty-archive"><div class="empty-archive-emoji">📝</div>Нет предстоящих заданий</div>`;
-            }
-
-            let html = `
-                    <div class="archive-actions-bar">
-                        <button class="delete-all-btn" onclick="showDeleteAllAlert()">
-                            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6h14z"/></svg>
-                            Удалить все
-                        </button>
-                    </div>
-                    <div class="archive-card">
-                `;
-
+            if (!hws.length) return '<div class="empty-archive"><div class="empty-archive-emoji">📝</div>Нет предстоящих заданий</div>';
+            let html = '<div class="archive-actions-bar"><button class="delete-all-btn" onclick="showDeleteAllAlert()"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6h14z"/></svg> Удалить все</button></div><div class="archive-card">';
             hws.forEach(hw => {
                 const days = getDaysUntil(hw.date);
                 const info = formatDaysLeft(days);
                 const status = hw.completed ? 'done' : 'pending';
                 const icon = hw.completed ? '✓' : '!';
-
-                html += `
-                    <div class="archive-item">
-                        <div class="archive-status ${status}">${icon}</div>
-                        <div class="archive-info">
-                            <div class="archive-subject">${hw.subject}</div>
-                            <div class="archive-text">${hw.text}</div>
-                            <div class="archive-deadline ${info.urgent ? 'urgent' : ''}">${info.text}</div>
-                        </div>
-                        <div class="archive-actions">
-                            <button class="archive-action-btn delete" onclick="confirmDeleteHomework('${hw.id}')">×</button>
-                        </div>
-                    </div>`;
+                const weekLabel = getWeekLabel(hw.date);
+                const dateWithDay = formatDateWithDay(hw.date);
+                html += '<div class="archive-item">' +
+                    '<div class="archive-status ' + status + '">' + icon + '</div>' +
+                    '<div class="archive-info">' +
+                    '<div class="archive-subject">' + hw.subject + '</div>' +
+                    '<div class="archive-text">' + hw.text + '</div>' +
+                    '<div class="archive-deadline' + (info.urgent ? ' urgent' : '') + '">' + info.text + '</div>' +
+                    '</div>' +
+                    '<div class="archive-date-block">' +
+                    '<div class="archive-date-day">' + dateWithDay + '</div>' +
+                    '<div class="archive-week-badge">' + weekLabel + '</div>' +
+                    '</div>' +
+                    '<div class="archive-actions"><button class="archive-action-btn delete" onclick="confirmDeleteHomework(\'' + hw.id + '\')">×</button></div>' +
+                    '</div>';
             });
-
             return html + '</div>';
         }
 
         function renderPastHw(hws) {
-            if (!hws.length) {
-                return `<div class="empty-archive"><div class="empty-archive-emoji">📚</div>Архив пуст</div>`;
-            }
-
+            if (!hws.length) return '<div class="empty-archive"><div class="empty-archive-emoji">📚</div>Нет прошедших заданий</div>';
             const grouped = {};
-            hws.forEach(hw => {
-                if (!grouped[hw.date]) grouped[hw.date] = [];
-                grouped[hw.date].push(hw);
-            });
-
-            let html = `
-                    <div class="archive-actions-bar">
-                        <button class="delete-all-btn" onclick="showDeleteAllAlert()">
-                            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6h14z"/></svg>
-                            Удалить все
-                        </button>
-                    </div>
-                `;
-
+            hws.forEach(hw => { if (!grouped[hw.date]) grouped[hw.date] = []; grouped[hw.date].push(hw); });
+            let html = '<div class="archive-actions-bar"><button class="delete-all-btn" onclick="showDeleteAllAlert()"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6h14z"/></svg> Удалить все</button></div>';
             Object.keys(grouped).sort((a, b) => parseDateStr(b) - parseDateStr(a)).forEach(date => {
-                const d = parseDateStr(date);
-                html += `<div class="archive-card"><div class="archive-date">${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}</div>`;
-
+                const weekLabel = getWeekLabel(date);
+                const dateWithDay = formatDateWithDay(date);
+                html += '<div class="archive-card"><div class="archive-date-header"><span class="archive-date">' + dateWithDay + '</span><span class="archive-week-badge">' + weekLabel + '</span></div>';
                 grouped[date].forEach(hw => {
                     const statusClass = hw.completed ? 'done' : 'missed';
                     const icon = hw.completed ? '✓' : '✗';
-
-                    html += `
-                        <div class="archive-item">
-                            <div class="archive-status ${statusClass}">${icon}</div>
-                            <div class="archive-info">
-                                <div class="archive-subject">${hw.subject}</div>
-                                <div class="archive-text">${hw.text}</div>
-                            </div>
-                            <div class="archive-actions">
-                                <button class="archive-action-btn delete" onclick="confirmDeleteHomework('${hw.id}')">×</button>
-                            </div>
-                        </div>`;
+                    html += '<div class="archive-item">' +
+                        '<div class="archive-status ' + statusClass + '">' + icon + '</div>' +
+                        '<div class="archive-info">' +
+                        '<div class="archive-subject">' + hw.subject + '</div>' +
+                        '<div class="archive-text">' + hw.text + '</div>' +
+                        '</div>' +
+                        '<div class="archive-actions"><button class="archive-action-btn delete" onclick="confirmDeleteHomework(\'' + hw.id + '\')">×</button></div>' +
+                        '</div>';
                 });
-
                 html += '</div>';
             });
-
             return html;
         }
 
